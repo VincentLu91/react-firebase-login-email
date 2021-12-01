@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import db, { auth } from '../firebase'
 import { signOut } from "firebase/auth";
-import { collection, query, where, getDocs, addDoc, onSnapshot } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, onSnapshot, deleteDoc } from "firebase/firestore";
 import './Home.css';
 import { UserContext } from '../UserContext';
 import {loadStripe} from '@stripe/stripe-js';
@@ -55,6 +55,15 @@ const Home = () => {
     useEffect(() => {
         getProductsDisplay();
     }, []);
+
+    const clearSubscriptions = async() => {
+        const docsToDelete = query(collection(db, `customers/${user.uid}/subscriptions`));
+        const deleteQuerySnapshot = await getDocs(docsToDelete);
+        deleteQuerySnapshot.forEach(async docSnapshot => {
+            await deleteDoc(docSnapshot.ref);
+        })
+    }
+
     const checkOut = async (priceId) => {
         //alert(priceId);
         const docRef = await addDoc(collection(db, `customers/${user.uid}/checkout_sessions`), {
