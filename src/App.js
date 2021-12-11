@@ -4,8 +4,7 @@ import Home from "./components/Home";
 import Signin from "./components/Signin";
 import { auth } from "./firebase";
 import { UserContext } from "./UserContext";
-import { BrowserRouter } from "react-router-dom";
-import { Route } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -26,14 +25,16 @@ function App() {
   }, []);
   return (
     <div className="App">
-      <BrowserRouter>
+      <Router>
         <UserContext.Provider value={{ user }}>
-          {user ? <Home /> : <Signin />}
-          {/*<PrivateRoute path="/" component={Home} />
-          <Route path="/login" component={Signin} />
-  <Router path="**" component={Signin}/>*/}
+          {/*{user ? <Home /> : <Signin />}*/}
+          <Routes>
+            <Route path="/" element={<Signin />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="**" element={<Home />} />
+          </Routes>
         </UserContext.Provider>
-      </BrowserRouter>
+      </Router>
     </div>
   );
 }
