@@ -14,17 +14,28 @@ import "./Home.css";
 import { UserContext } from "../UserContext";
 import { loadStripe } from "@stripe/stripe-js";
 import axios from "axios";
+import AuthComponent from "./layout";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 const Home = () => {
+  const navigate = useNavigate();
+  const currentUser = useSelector((state) => state.user.currentUser);
   const [products, setProducts] = useState([]);
   const [subscription, setSubscription] = useState(null);
-  const { user } = useContext(UserContext);
-  const [loading, setLoading] = useState(false);
 
+  const { state: userContext, update: updateUserContext } =
+    useContext(UserContext);
+  const [loading, setLoading] = useState(false);
+  //console.log(userContext);
   async function getSubscriptionsInfo() {
+    //if (!userContext.user) return;
     const subscriptionsRef = collection(
       db,
-      `customers/${user.uid}/subscriptions`
+      //`customers/${userContext.user.uid}/subscriptions`
+      //`customers/${currentUser}/subscriptions` // why does this not work?
+      `customers/CvKhT7Q8Ubeo4ImF3qToeJZBEJ22/subscriptions` // why does this work?
     );
     const q = query(subscriptionsRef);
     const querySnapshot = await getDocs(q);
@@ -39,8 +50,29 @@ const Home = () => {
     });
   }
 
+  async function checkAuth(user) {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/firebase.User
+        const uid = user.uid;
+        console.log("The user is authenticated with the uid: ", uid);
+        // ...
+      } else {
+        // User is signed out
+        // ...
+        console.log(
+          "The user is inauthenticated, redirecting back to signin page"
+        );
+        navigate("/");
+      }
+    });
+  }
+
   // create useEffect to track user's subscriptions...
   useEffect(() => {
+    //console.log("Current user is: ", currentUser);
+    checkAuth(currentUser);
     getSubscriptionsInfo();
   }, []);
 
@@ -74,7 +106,8 @@ const Home = () => {
 
   const clearSubscriptions = async () => {
     const docsToDelete = query(
-      collection(db, `customers/${user.uid}/subscriptions`)
+      //collection(db, `customers/${userContext.user.uid}/subscriptions`)
+      collection(db, `customers/${currentUser}/subscriptions`)
     );
     const deleteQuerySnapshot = await getDocs(docsToDelete);
     deleteQuerySnapshot.forEach(async (docSnapshot) => {
@@ -85,7 +118,8 @@ const Home = () => {
   const checkOut = async (priceId) => {
     //alert(priceId);
     const docRef = await addDoc(
-      collection(db, `customers/${user.uid}/checkout_sessions`),
+      //collection(db, `customers/${userContext.user.uid}/checkout_sessions`),
+      collection(db, `customers/${currentUser}/checkout_sessions`),
       {
         price: priceId,
         success_url: window.location.origin,
@@ -136,57 +170,61 @@ const Home = () => {
   );
   console.log(products);
   return (
-    <div>
-      <h1>Welcome home</h1>
-      <p>
-        <button
-          className="logout"
-          onClick={() => /*auth.signOut()*/ signOut(auth)}
-        >
-          Sign out
-        </button>
-      </p>
-      {loading && (
-        <div>
-          <img src="/assets/img/loader.svg"></img>
-        </div>
-      )}
-      <div className="plans-container">
-        {Object.entries(products).map(([productId, productData]) => {
-          const isCurrentPlan = productData?.name
-            ?.toLowerCase()
-            .includes(subscription?.role);
-          return (
-            <div className="plans" key={productId}>
-              <div>
-                {productData.name} - {productData.description}
-              </div>
-              {/*<button disabled={isCurrentPlan} onClick={() => checkOut("price_1K1c9ULBlaDAR7THFHK0A5pi")}>*/}
-              <button
-                className={isCurrentPlan && "subscribed"}
-                disabled={isCurrentPlan}
-                onClick={() =>
-                  !isCurrentPlan
-                    ? switchPlan(
-                        subscription.subscriptionId,
-                        productData.prices.priceId
-                      )
-                    : checkOut(productData.prices.priceId)
-                }
-              >
-                {!isCurrentPlan ? "Switch Plan" : "Subscribed"}
-              </button>
-              {isCurrentPlan && (
-                <button onClick={() => cancelPlan(subscription.subscriptionId)}>
-                  Cancel
+    <AuthComponent>
+      <div>
+        <h1>Welcome home</h1>
+        <p>
+          <button
+            className="logout"
+            onClick={() => /*auth.signOut()*/ signOut(auth)}
+          >
+            Sign out
+          </button>
+        </p>
+        {loading && (
+          <div>
+            <img src="/assets/img/loader.svg"></img>
+          </div>
+        )}
+        <div className="plans-container">
+          {Object.entries(products).map(([productId, productData]) => {
+            const isCurrentPlan = productData?.name
+              ?.toLowerCase()
+              .includes(subscription?.role);
+            return (
+              <div className="plans" key={productId}>
+                <div>
+                  {productData.name} - {productData.description}
+                </div>
+                {/*<button disabled={isCurrentPlan} onClick={() => checkOut("price_1K1c9ULBlaDAR7THFHK0A5pi")}>*/}
+                <button
+                  className={isCurrentPlan && "subscribed"}
+                  disabled={isCurrentPlan}
+                  onClick={() =>
+                    !isCurrentPlan
+                      ? switchPlan(
+                          subscription.subscriptionId,
+                          productData.prices.priceId
+                        )
+                      : checkOut(productData.prices.priceId)
+                  }
+                >
+                  {!isCurrentPlan ? "Switch Plan" : "Subscribed"}
                 </button>
-              )}
-              {console.log("ProductData Price: ", productData.prices)}
-            </div>
-          );
-        })}
+                {isCurrentPlan && (
+                  <button
+                    onClick={() => cancelPlan(subscription.subscriptionId)}
+                  >
+                    Cancel
+                  </button>
+                )}
+                {console.log("ProductData Price: ", productData.prices)}
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </AuthComponent>
   );
 };
 

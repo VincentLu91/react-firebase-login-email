@@ -3,8 +3,10 @@ import "./App.css";
 import Home from "./components/Home";
 import Signin from "./components/Signin";
 import { auth } from "./firebase";
-import { UserContext } from "./UserContext";
+import { UserContext, UserProvider } from "./UserContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "./redux/"; //src/redux/index.js
 
 function App() {
   const [user, setUser] = useState(null);
@@ -24,18 +26,20 @@ function App() {
     return unsubscribe;
   }, []);
   return (
-    <div className="App">
-      <Router>
-        <UserContext.Provider value={{ user }}>
+    <Provider store={store}>
+      <div className="App">
+        <Router>
+          {/*<UserProvider>*/}
           {/*{user ? <Home /> : <Signin />}*/}
           <Routes>
             <Route path="/" element={<Signin />} />
             <Route path="/home" element={<Home />} />
             <Route path="**" element={<Home />} />
           </Routes>
-        </UserContext.Provider>
-      </Router>
-    </div>
+          {/*</UserProvider>*/}
+        </Router>
+      </div>
+    </Provider>
   );
 }
 
