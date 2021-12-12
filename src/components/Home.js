@@ -105,10 +105,10 @@ const Home = () => {
     getProductsDisplay();
   }, []);
 
-  const clearSubscriptions = async () => {
+  const clearSubscriptions = async (user) => {
     const docsToDelete = query(
       //collection(db, `customers/${userContext.user.uid}/subscriptions`)
-      collection(db, `customers/${currentUser}/subscriptions`)
+      collection(db, `customers/${user.uid}/subscriptions`)
     );
     const deleteQuerySnapshot = await getDocs(docsToDelete);
     deleteQuerySnapshot.forEach(async (docSnapshot) => {
@@ -143,6 +143,7 @@ const Home = () => {
 
   //Stripe APIs
   const switchPlan = async (currentSubscriptionId, newPriceId) => {
+    await checkAuth(currentUser);
     setLoading(true);
     const { data } = await axios.post(
       "http://localhost:8080/stripe/switch-plans",
@@ -152,17 +153,20 @@ const Home = () => {
       }
     );
     setSubscription(null);
-    await getSubscriptionsInfo();
+    //await getSubscriptionsInfo();
+    await checkAuth(currentUser);
     setLoading(false);
   };
 
   const cancelPlan = async (currentSubscriptionId) => {
+    await checkAuth(currentUser);
     setLoading(true);
     await axios.post("http://localhost:8080/stripe/cancel-subscription", {
       stripeSubscriptionId: currentSubscriptionId,
     });
     setSubscription(null);
-    await getSubscriptionsInfo();
+    //await getSubscriptionsInfo();
+    await checkAuth(currentUser);
     setLoading(false);
   };
 
