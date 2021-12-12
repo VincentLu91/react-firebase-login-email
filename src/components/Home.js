@@ -29,13 +29,13 @@ const Home = () => {
     useContext(UserContext);
   const [loading, setLoading] = useState(false);
   //console.log(userContext);
-  async function getSubscriptionsInfo() {
+  async function getSubscriptionsInfo(user) {
     //if (!userContext.user) return;
     const subscriptionsRef = collection(
       db,
       //`customers/${userContext.user.uid}/subscriptions`
-      //`customers/${currentUser}/subscriptions` // why does this not work?
-      `customers/CvKhT7Q8Ubeo4ImF3qToeJZBEJ22/subscriptions` // why does this work?
+      `customers/${user.uid}/subscriptions` // why does this not work? update: it works, I had to call this fn in checkAuth()
+      //`customers/CvKhT7Q8Ubeo4ImF3qToeJZBEJ22/subscriptions` // why does this work? because it identifies the ID upon useEffect
     );
     const q = query(subscriptionsRef);
     const querySnapshot = await getDocs(q);
@@ -57,6 +57,7 @@ const Home = () => {
         // https://firebase.google.com/docs/reference/js/firebase.User
         const uid = user.uid;
         console.log("The user is authenticated with the uid: ", uid);
+        getSubscriptionsInfo(user);
         // ...
       } else {
         // User is signed out
@@ -73,7 +74,7 @@ const Home = () => {
   useEffect(() => {
     //console.log("Current user is: ", currentUser);
     checkAuth(currentUser);
-    getSubscriptionsInfo();
+    //getSubscriptionsInfo();
   }, []);
 
   async function getProductsDisplay() {
