@@ -1,10 +1,11 @@
+require("dotenv").config(); // to read environment variables later.
 const STRIPE_SECRET_KEY =
   "sk_test_51Jx1cdLBlaDAR7THINnFtmhlbxt3oaeehIMdTtpTitqJtX5eTtBenCXEF1bnHUN8xvpzUSAxgFhut1BfRu1bZljo00F6QMtxgc";
 
 //Twilio Credentials
-const TWILIO_ACCOUNT_SID = "ACd26c851e7d7d597599bf47a5731e37a5";
+const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_FROM_NUMBER = "+12184322463";
-const TWILIO_AUTH_TOKEN = "c75a54e3454e04512525f18d3997b139";
+const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 
 //Mailtrap Credentials
 const MAILTRAP_HOST = "smtp.mailtrap.io";
