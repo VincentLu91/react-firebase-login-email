@@ -190,6 +190,13 @@ const Home = () => {
           >
             Sign out
           </button>
+          <button onClick={() => navigate("/blog1")}>Go to Blog1</button>
+          <br />
+          <button onClick={() => navigate("/plan1")}>Go to Plan1</button>
+          <button onClick={() => navigate("/plan2")}>Go to Plan2</button>
+          <br />
+          <button onClick={() => navigate("/plan3")}>Go to Plan3</button>
+          <button onClick={() => navigate("/plan4")}>Go to Plan4</button>
         </p>
         {loading && (
           <div>
