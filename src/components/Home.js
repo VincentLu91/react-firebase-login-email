@@ -25,8 +25,8 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [subscription, setSubscription] = useState(null);
 
-  const { state: userContext, update: updateUserContext } =
-    useContext(UserContext);
+  // const { state: userContext, update: updateUserContext } =
+  //   useContext(UserContext);
   const [loading, setLoading] = useState(false);
   //console.log(userContext);
   async function getSubscriptionsInfo(user) {
@@ -116,11 +116,11 @@ const Home = () => {
     });
   };
 
-  const checkOut = async (priceId) => {
+  const checkOut = async (priceId, user) => {
     //alert(priceId);
     const docRef = await addDoc(
       //collection(db, `customers/${userContext.user.uid}/checkout_sessions`),
-      collection(db, `customers/${currentUser}/checkout_sessions`),
+      collection(db, `customers/${user.uid}/checkout_sessions`),
       {
         price: priceId,
         success_url: window.location.origin,
@@ -145,13 +145,18 @@ const Home = () => {
   const switchPlan = async (currentSubscriptionId, newPriceId) => {
     await checkAuth(currentUser);
     setLoading(true);
-    const { data } = await axios.post(
-      "http://localhost:8080/stripe/switch-plans",
-      {
-        stripeSubscriptionId: currentSubscriptionId,
-        newPriceId: newPriceId,
-      }
-    );
+    try {
+      const { data } = await axios.post(
+        //"https://us-central1-audio-example-expo.cloudfunctions.net/stripeSwitchPlans", // this is to be replaced by ngrok, otherwise use localhost link below
+        "http://localhost:8080/stripe/switch-plans",
+        {
+          stripeSubscriptionId: currentSubscriptionId,
+          newPriceId: newPriceId,
+        }
+      );
+    } catch (error) {
+      alert("Failed");
+    }
     setSubscription(null);
     //await getSubscriptionsInfo();
     await checkAuth(currentUser);
@@ -211,7 +216,7 @@ const Home = () => {
                           subscription.subscriptionId,
                           productData.prices.priceId
                         )
-                      : checkOut(productData.prices.priceId)
+                      : checkOut(productData.prices.priceId, currentUser)
                   }
                 >
                   {!isCurrentPlan ? "Switch Plan" : "Subscribed"}

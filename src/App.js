@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import Home from "./components/Home";
 import Signin from "./components/Signin";
+import BlogPage from "./components/pages/blog1";
 import { auth } from "./firebase";
-import { UserContext, UserProvider } from "./UserContext";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./redux/"; //src/redux/index.js
@@ -34,6 +34,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Signin />} />
             <Route path="/home" element={<Home />} />
+            <Route path="/blog1" element={<BlogPage />} />
             <Route path="**" element={<Home />} />
           </Routes>
           {/*</UserProvider>*/}
