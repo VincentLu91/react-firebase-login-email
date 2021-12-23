@@ -11,6 +11,7 @@ import { auth } from "./firebase";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./redux/"; //src/redux/index.js
+import AudioPlayer from "./components/pages/AudioPlayer/AudioPlayer";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -43,6 +44,7 @@ function App() {
             <Route path="/plan2" element={<Plan2 />} />
             <Route path="/plan3" element={<Plan3 />} />
             <Route path="/plan4" element={<Plan4 />} />
+            <Route path="/audioplayer" element={<AudioPlayer />} />
             <Route path="**" element={<Home />} />
           </Routes>
           {/*</UserProvider>*/}
