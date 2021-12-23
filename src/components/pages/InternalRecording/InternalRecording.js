@@ -2,7 +2,7 @@ import { useReactMediaRecorder } from "react-media-recorder";
 
 const InternalRecording = () => {
   const { status, startRecording, stopRecording, mediaBlobUrl } =
-    useReactMediaRecorder({ audio: true });
+    useReactMediaRecorder({ audio: true }); // could also put video and screen props as true!
 
   return (
     <div>
