@@ -197,6 +197,8 @@ const Home = () => {
           <br />
           <button onClick={() => navigate("/plan3")}>Go to Plan3</button>
           <button onClick={() => navigate("/plan4")}>Go to Plan4</button>
+          <br />
+          <button onClick={() => navigate("/audioplayer")}>AudioPlayer</button>
         </p>
         {loading && (
           <div>
