@@ -12,6 +12,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./redux/"; //src/redux/index.js
 import AudioPlayer from "./components/pages/AudioPlayer/AudioPlayer";
+import AudioRecording from "./components/pages/AudioRecording/AudioRecording";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -45,6 +46,7 @@ function App() {
             <Route path="/plan3" element={<Plan3 />} />
             <Route path="/plan4" element={<Plan4 />} />
             <Route path="/audioplayer" element={<AudioPlayer />} />
+            <Route path="/audiorecording" element={<AudioRecording />} />
             <Route path="**" element={<Home />} />
           </Routes>
           {/*</UserProvider>*/}
