@@ -202,6 +202,10 @@ const Home = () => {
           <button onClick={() => navigate("/audiorecording")}>
             AudioRecording
           </button>
+          <br />
+          <button onClick={() => navigate("/internalrecording")}>
+            InternalRecording (which works on audio recording too)
+          </button>
         </p>
         {loading && (
           <div>

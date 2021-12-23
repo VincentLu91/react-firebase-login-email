@@ -13,6 +13,7 @@ import { Provider } from "react-redux";
 import store from "./redux/"; //src/redux/index.js
 import AudioPlayer from "./components/pages/AudioPlayer/AudioPlayer";
 import AudioRecording from "./components/pages/AudioRecording/AudioRecording";
+import InternalRecording from "./components/pages/InternalRecording/InternalRecording";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -47,6 +48,7 @@ function App() {
             <Route path="/plan4" element={<Plan4 />} />
             <Route path="/audioplayer" element={<AudioPlayer />} />
             <Route path="/audiorecording" element={<AudioRecording />} />
+            <Route path="/internalrecording" element={<InternalRecording />} />
             <Route path="**" element={<Home />} />
           </Routes>
           {/*</UserProvider>*/}
