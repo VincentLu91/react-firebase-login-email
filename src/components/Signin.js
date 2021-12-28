@@ -14,8 +14,8 @@ const Signin = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const emailRef = useRef(null);
-  const { state: user, update: updateUser } = useContext(UserContext);
-  console.log(user);
+  //const { state: user, update: updateUser } = useContext(UserContext);
+  //console.log(user);
   const passwordRef = useRef(null);
 
   useEffect(() => {
@@ -52,8 +52,8 @@ const Signin = () => {
       passwordRef.current.value
     )
       .then((userData) => {
-        console.log(userData);
-
+        //console.log("userData is: ", userData);
+        dispatch(setCurrentUser(userData));
         //updateUser({ ...user, user: userData.user });
         //navigate("/home");
       })

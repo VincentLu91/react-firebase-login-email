@@ -19,11 +19,11 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-const Home = () => {
+const Home = ({ subscription, setSubscription }) => {
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.user.currentUser);
   const [products, setProducts] = useState([]);
-  const [subscription, setSubscription] = useState(null);
+  //const [subscription, setSubscription] = useState(null);
 
   // const { state: userContext, update: updateUserContext } =
   //   useContext(UserContext);
@@ -71,11 +71,9 @@ const Home = () => {
   }
 
   // create useEffect to track user's subscriptions...
-  useEffect(() => {
-    //console.log("Current user is: ", currentUser);
-    checkAuth(currentUser);
-    //getSubscriptionsInfo();
-  }, []);
+  // useEffect(() => {
+  //   checkAuth(currentUser);
+  // }, []);
 
   async function getProductsDisplay() {
     const productsRef = collection(db, "products");
