@@ -18,11 +18,13 @@ import AuthComponent from "./layout";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { setCurrentUser } from "../redux/user/actions";
 
 const Home = ({ subscription, setSubscription }) => {
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.user.currentUser);
   const [products, setProducts] = useState([]);
+  const dispatch = useDispatch();
   //const [subscription, setSubscription] = useState(null);
 
   // const { state: userContext, update: updateUserContext } =
@@ -70,10 +72,17 @@ const Home = ({ subscription, setSubscription }) => {
     });
   }
 
-  // create useEffect to track user's subscriptions...
-  // useEffect(() => {
-  //   checkAuth(currentUser);
-  // }, []);
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+      console.log(authUser); // uid
+      if (authUser) {
+        dispatch(setCurrentUser(authUser));
+        //navigate("/home");
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   async function getProductsDisplay() {
     const productsRef = collection(db, "products");
