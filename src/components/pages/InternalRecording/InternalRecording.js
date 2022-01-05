@@ -169,7 +169,8 @@ const InternalRecording = () => {
         //alert("Entering onmessage");
         console.log("onsocket message is: ", message);
         let msg = "";
-        const res = JSON.parse(message.data);
+        //const res = JSON.parse(message.data);
+        const res = message.data;
         texts[res.audio_start] = res.text;
         const keys = Object.keys(texts);
         keys.sort((a, b) => a - b);
