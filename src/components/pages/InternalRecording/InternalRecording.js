@@ -279,9 +279,12 @@ const InternalRecording = () => {
           // audio data must be sent as a base64 encoded string
           if (socketRef.current) {
             socketRef.current.emit(
-              JSON.stringify({
+              /*JSON.stringify({
                 audio_data: base64data.split("base64,")[1],
-              })
+              })*/
+              {
+                audio_data: base64data.split("base64,")[1],
+              }
             );
           }
         };
