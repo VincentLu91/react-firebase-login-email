@@ -28,6 +28,7 @@ import withAuth from "../../withAuth";
 import { auth } from "../../../firebase";
 import { setCurrentUser } from "../../../redux/user/actions";
 import RecordRTC, { StereoAudioRecorder, MediaStreamRecorder } from "recordrtc";
+import { io } from "socket.io-client";
 
 const InternalRecording = () => {
   const {
@@ -152,17 +153,19 @@ const InternalRecording = () => {
       const { token } = data;
 
       // establish wss with AssemblyAI (AAI) at 16000 sample rate
-      socketRef.current = await new WebSocket(
+      socketRef.current = io(
         `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${token}`
       );
 
       const texts = {};
 
-      socketRef.current.onclose = (event, e) => {
-        console.log("error event useEffect is: ", event);
-        console.log("e in useEffect is: ", e);
-      };
-      socketRef.current.onmessage = (message) => {
+      socketRef.current.on("disconnect", () => {
+        //console.log("error event useEffect is: ", event);
+        //console.log("e in useEffect is: ", e);
+        console.log("Got disconnected, need to try connecting again");
+        socketRef.current.connect();
+      });
+      socketRef.current.on("message", (message) => {
         //alert("Entering onmessage");
         console.log("onsocket message is: ", message);
         let msg = "";
@@ -177,15 +180,16 @@ const InternalRecording = () => {
         }
         console.log("Leaving onmessage. msg is: ", msg);
         setTranscript(msg);
-      };
+      });
 
-      socketRef.current.onerror = (event) => {
+      /*socketRef.current.onerror = (event) => {
         console.error("error event is: ", event);
         socketRef.current.close();
-      };
-      socketRef.current.onopen = () => {
+      };*/
+      socketRef.current.on("connect", () => {
         console.log("socket is opened");
-      };
+        console.log(socketRef.current.id);
+      });
     };
     createSocket();
   }, []);
@@ -274,7 +278,7 @@ const InternalRecording = () => {
           console.log("base64data is: ", base64data);
           // audio data must be sent as a base64 encoded string
           if (socketRef.current) {
-            socketRef.current.send(
+            socketRef.current.emit(
               JSON.stringify({
                 audio_data: base64data.split("base64,")[1],
               })
