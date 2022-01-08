@@ -38,7 +38,7 @@ const InternalRecording = () => {
     mediaBlobUrl,
     previewAudioStream,
   } = useReactMediaRecorder({ audio: true }); // could also put video and screen props as true!
-  // the useReactMediaRecorder call above allows me to record both internal audio and microphone.
+  // the useReactMediaRecorder call above allows me to record both screen audio and microphone.
   // for example, it could record audio from a YouTube video I am watching while I am speaking on the microphone.
   // so this is a capable audio recorder in which it records not just the microphone, but also sounds inside the computer
   // see this for reference:
@@ -148,19 +148,19 @@ const InternalRecording = () => {
 
   useEffect(() => {
     const createSocket = async () => {
-      /*const response = await fetch("http://localhost:5000/");
+      const response = await fetch("http://localhost:5000/");
       const data = await response.json();
       console.log("DATOKEN", data);
       if (data.error) {
         alert(data.error);
       }
 
-      const { token } = data;*/
+      const { token } = data;
 
       // establish wss with AssemblyAI (AAI) at 16000 sample rate
       socketRef.current = io(
-        //`wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${token}`
-        "http://localhost:5000/"
+        `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${token}`
+        //"http://localhost:5000/"
       );
 
       const texts = {};
@@ -174,7 +174,7 @@ const InternalRecording = () => {
       socketRef.current.on("receiving audio data", (message) => {
         //alert("Entering onmessage");
         console.log("onsocket message is: ", message);
-        /*let msg = "";
+        let msg = "";
         //const res = JSON.parse(message.data);
         const res = message.data;
         texts[res.audio_start] = res.text;
@@ -186,7 +186,7 @@ const InternalRecording = () => {
           }
         }
         console.log("Leaving onmessage. msg is: ", msg);
-        setTranscript(msg);*/
+        setTranscript(msg);
       });
 
       /*socketRef.current.onerror = (event) => {
