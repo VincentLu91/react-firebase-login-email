@@ -41,6 +41,8 @@ const InternalRecording = () => {
   // the useReactMediaRecorder call above allows me to record both internal audio and microphone.
   // for example, it could record audio from a YouTube video I am watching while I am speaking on the microphone.
   // so this is a capable audio recorder in which it records not just the microphone, but also sounds inside the computer
+  // see this for reference:
+  // https://github.com/VincentLu91/react-firebase-login-email/blob/ffe985d000cab213c74eb24fc299a4743544a406/src/components/pages/InternalRecording/InternalRecording.js
   console.log("previewAudioStream is: ", previewAudioStream);
   const socketRef = useRef();
 
