@@ -10,7 +10,13 @@ app.use(cors());
 const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
 app.get("/", async (req, res) => {
   try {
@@ -39,6 +45,15 @@ const server = app.listen(app.get("port"), () => {
 
 io.on("connection", (socket) => {
   console.log("a user connected");
+  socket.join("first_client");
+  socket.on("sending audio data", ({ audio_data }) => {
+    console.log("Server data is: ", audio_data);
+    //socket.emit("receiving audio data", "world");
+    socket.emit(
+      "receiving audio data",
+      Buffer.from(audio_data, "base64").toString()
+    );
+  });
 });
 
 server.listen(5000, () => {
