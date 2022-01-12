@@ -273,7 +273,7 @@ const InternalRecording = () => {
       timeSlice: 250, // set 250 ms intervals of data that sends to AAI
       //sampleRate: 16000,
       desiredSampRate: 16000,
-      numberOfAudioChannels: 2, // real-time requires only one channel
+      numberOfAudioChannels: 1, // real-time requires only one channel
       bufferSize: 4096,
       //audioBitsPerSecond: 128000,
       ondataavailable: (blob) => {
