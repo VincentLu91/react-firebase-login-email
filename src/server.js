@@ -7,17 +7,6 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const http = require("http");
-const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
-
 app.get("/", async (req, res) => {
   try {
     const response = await axios.post(
@@ -37,25 +26,8 @@ app.get("/", async (req, res) => {
   }
 });
 
-/*app.set("port", 5000);
+app.set("port", 5001);
 const server = app.listen(app.get("port"), () => {
   console.log(`Server is running on port ${server.address().port}`);
   //console.log(token);
-});*/
-
-io.on("connection", (socket) => {
-  console.log("a user connected");
-  socket.join("first_client");
-  socket.on("sending audio data", ({ audio_data }) => {
-    console.log("Server data is: ", audio_data);
-    //socket.emit("receiving audio data", "world");
-    socket.emit(
-      "receiving audio data",
-      Buffer.from(audio_data, "base64").toString()
-    );
-  });
-});
-
-server.listen(5000, () => {
-  console.log("listening on *:5000");
 });

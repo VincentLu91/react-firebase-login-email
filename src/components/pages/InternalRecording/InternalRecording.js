@@ -148,7 +148,7 @@ const InternalRecording = () => {
 
   useEffect(() => {
     const createSocket = async () => {
-      const response = await fetch("http://localhost:5000/");
+      const response = await fetch("http://localhost:5001/");
       const data = await response.json();
       console.log("DATOKEN", data);
       if (data.error) {

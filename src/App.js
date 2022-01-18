@@ -14,6 +14,7 @@ import store from "./redux/"; //src/redux/index.js
 import AudioPlayer from "./components/pages/AudioPlayer/AudioPlayer";
 import AudioRecording from "./components/pages/AudioRecording/AudioRecording";
 import InternalRecording from "./components/pages/InternalRecording/InternalRecording";
+import Transcribe from "./components/pages/Transcribe/Transcribe";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -49,6 +50,7 @@ function App() {
             <Route path="/audioplayer" element={<AudioPlayer />} />
             <Route path="/audiorecording" element={<AudioRecording />} />
             <Route path="/internalrecording" element={<InternalRecording />} />
+            <Route path="/transcribe" element={<Transcribe />} />
             <Route path="**" element={<Home />} />
           </Routes>
           {/*</UserProvider>*/}
