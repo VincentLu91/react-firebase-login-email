@@ -49,6 +49,7 @@ const Transcribe = () => {
 
     socket.onclose = (event) => {
       console.log(event);
+      socket = null;
     };
 
     socket.onopen = () => {
