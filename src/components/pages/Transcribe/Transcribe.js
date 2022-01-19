@@ -98,7 +98,7 @@ const Transcribe = () => {
         alignItems: "center",
       }}
     >
-      <button onClick={startTranscribing()}>Start Transcribing</button>
+      <button onClick={startTranscribing}>Start Transcribing</button>
     </div>
   );
 };

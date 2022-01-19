@@ -214,6 +214,7 @@ const Home = ({ subscription, setSubscription }) => {
           <button onClick={() => navigate("/internalrecording")}>
             InternalRecording (which works on audio recording too)
           </button>
+          <button onClick={() => navigate("/transcribe")}>Transcribe</button>
         </p>
         {loading && (
           <div>
