@@ -40,6 +40,7 @@ const Transcribe = () => {
       }
       console.log("Leaving onmessage. msg is: ", msg);
       setTranscript(msg);
+      console.log("Opening. Socket is: ", socket);
     };
 
     socket.onerror = (event) => {
@@ -94,13 +95,13 @@ const Transcribe = () => {
 
   const stopTranscribing = async () => {
     console.log("Stopping socket...");
-    console.log("Socket is: ", socket);
+    console.log("Closing. Socket is: ", socket); // why is this undefined????
     if (socket) {
-      /*socket.onclose = (event) => {
+      socket.onclose = (event) => {
         console.log(event);
         socket = null;
-      };*/
-      socket.close();
+      };
+      //socket.close();
     }
     setIsTranscribing(false);
   };
