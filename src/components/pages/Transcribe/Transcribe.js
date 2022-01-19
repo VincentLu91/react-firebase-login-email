@@ -95,7 +95,7 @@ const Transcribe = () => {
 
   const stopTranscribing = async () => {
     console.log("Stopping window.socket...");
-    console.log("Closing. window.socket is: ", window.socket); // why is this undefined????
+    console.log("Closing. window.socket is: ", window.socket);
     if (window.socket) {
       window.socket.onclose = (event) => {
         console.log(event);
