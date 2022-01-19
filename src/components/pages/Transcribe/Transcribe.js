@@ -3,8 +3,8 @@ import RecordRTC, { StereoAudioRecorder, MediaStreamRecorder } from "recordrtc";
 
 const Transcribe = () => {
   const [transcript, setTranscript] = React.useState("");
-
-  let isRecording = false;
+  const [isTranscribing, setIsTranscribing] = React.useState(false);
+  //let isRecording = false;
   let socket;
   let recorder;
 
@@ -45,11 +45,13 @@ const Transcribe = () => {
     socket.onerror = (event) => {
       console.error(event);
       socket.close();
+      setIsTranscribing(false);
     };
 
     socket.onclose = (event) => {
       console.log(event);
       socket = null;
+      setIsTranscribing(false);
     };
 
     socket.onopen = () => {
@@ -84,9 +86,23 @@ const Transcribe = () => {
           });
 
           recorder.startRecording();
+          setIsTranscribing(true);
         })
         .catch((err) => console.error(err));
     };
+  };
+
+  const stopTranscribing = async () => {
+    console.log("Stopping socket...");
+    console.log("Socket is: ", socket);
+    if (socket) {
+      /*socket.onclose = (event) => {
+        console.log(event);
+        socket = null;
+      };*/
+      socket.close();
+    }
+    setIsTranscribing(false);
   };
 
   return (
@@ -98,7 +114,11 @@ const Transcribe = () => {
         alignItems: "center",
       }}
     >
-      <button onClick={startTranscribing}>Start Transcribing</button>
+      {isTranscribing ? (
+        <button onClick={stopTranscribing}>Stop Transcribing</button>
+      ) : (
+        <button onClick={startTranscribing}>Start Transcribing</button>
+      )}
     </div>
   );
 };
