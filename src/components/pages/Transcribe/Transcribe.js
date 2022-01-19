@@ -5,7 +5,7 @@ const Transcribe = () => {
   const [transcript, setTranscript] = React.useState("");
   const [isTranscribing, setIsTranscribing] = React.useState(false);
   //let isRecording = false;
-  let socket;
+  //window.socket;
   let recorder;
 
   const startTranscribing = async () => {
@@ -19,15 +19,15 @@ const Transcribe = () => {
     const { token } = data;
 
     // establish wss with AssemblyAI (AAI) at 16000 sample rate
-    socket = await new WebSocket(
+    window.socket = await new WebSocket(
       `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${token}`
     );
 
     // handle incoming messages to display transcription to the DOM
     const texts = {};
-    socket.onmessage = (message) => {
+    window.socket.onmessage = (message) => {
       console.log("Entering onmessage");
-      console.log("onsocket message is: ", message);
+      console.log("onwindow.socket message is: ", message);
       let msg = "";
       const res = JSON.parse(message.data);
       texts[res.audio_start] = res.text;
@@ -40,22 +40,22 @@ const Transcribe = () => {
       }
       console.log("Leaving onmessage. msg is: ", msg);
       setTranscript(msg);
-      console.log("Opening. Socket is: ", socket);
+      console.log("Opening. window.socket is: ", window.socket);
     };
 
-    socket.onerror = (event) => {
+    window.socket.onerror = (event) => {
       console.error(event);
-      socket.close();
+      window.socket.close();
       setIsTranscribing(false);
     };
 
-    socket.onclose = (event) => {
+    window.socket.onclose = (event) => {
       console.log(event);
-      socket = null;
+      window.socket = null;
       setIsTranscribing(false);
     };
 
-    socket.onopen = () => {
+    window.socket.onopen = () => {
       navigator.mediaDevices
         .getUserMedia({ audio: true })
         .then((stream) => {
@@ -74,8 +74,8 @@ const Transcribe = () => {
                 const base64data = reader.result;
 
                 // audio data must be sent as a base64 encoded string
-                if (socket) {
-                  socket.send(
+                if (window.socket) {
+                  window.socket.send(
                     JSON.stringify({
                       audio_data: base64data.split("base64,")[1],
                     })
@@ -94,14 +94,14 @@ const Transcribe = () => {
   };
 
   const stopTranscribing = async () => {
-    console.log("Stopping socket...");
-    console.log("Closing. Socket is: ", socket); // why is this undefined????
-    if (socket) {
-      socket.onclose = (event) => {
+    console.log("Stopping window.socket...");
+    console.log("Closing. window.socket is: ", window.socket); // why is this undefined????
+    if (window.socket) {
+      window.socket.onclose = (event) => {
         console.log(event);
-        socket = null;
+        window.socket = null;
       };
-      //socket.close();
+      //window.socket.close();
     }
     setIsTranscribing(false);
   };
