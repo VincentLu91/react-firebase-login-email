@@ -99,17 +99,8 @@ const Transcribe = () => {
   };
 
   const stopTranscribing = async () => {
-    console.log("Stopping window.socket...");
-    console.log("Closing. window.socket is: ", window.socket);
-    if (window.socket) {
-      window.socket.onclose = (event) => {
-        console.log(event);
-        window.socket = null;
-      };
-      //window.socket.close(); // not necessary since we have the onclose() event
-      /* "You need to wait for the socket to open before you start resending data to it. 
-      You can have a loading state until the socket is ready, then transcription can proceed" */
-    }
+    window.socket.close(); // this appears to close the ws instance and a new one could be opened,
+    // but triggers Websocket is in CLOSED state in logs
     setIsTranscribing(false);
   };
 
