@@ -118,6 +118,8 @@ const Transcribe = () => {
       ) : (
         <button onClick={startTranscribing}>Start Transcribing</button>
       )}
+      <h1>Transcript below</h1>
+      <p>{transcript}</p>
     </div>
   );
 };
