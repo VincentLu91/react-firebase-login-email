@@ -55,7 +55,8 @@ const Transcribe = () => {
       setIsTranscribing(false);
     };
 
-    window.socket.onopen = () => {
+    window.socket.onopen = (e) => {
+      if (e.target.readyState !== WebSocket.OPEN) return;
       navigator.mediaDevices
         .getUserMedia({ audio: true })
         .then((stream) => {
@@ -74,13 +75,15 @@ const Transcribe = () => {
                 const base64data = reader.result;
 
                 // audio data must be sent as a base64 encoded string
-                if (window.socket) {
-                  window.socket.send(
-                    JSON.stringify({
-                      audio_data: base64data.split("base64,")[1],
-                    })
-                  );
-                }
+                //if (window.socket) {
+                //window.socket.send(
+
+                e.target.send(
+                  JSON.stringify({
+                    audio_data: base64data.split("base64,")[1],
+                  })
+                );
+                //}
               };
               reader.readAsDataURL(blob);
             },
