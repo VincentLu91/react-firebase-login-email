@@ -56,6 +56,8 @@ const Transcribe = () => {
     };
 
     window.socket.onopen = (e) => {
+      // solution to reopen websocket instance:
+      // https://stackoverflow.com/questions/47180904/websocket-even-after-firing-onopen-event-still-in-connecting-state
       if (e.target.readyState !== WebSocket.OPEN) return;
       navigator.mediaDevices
         .getUserMedia({ audio: true })
