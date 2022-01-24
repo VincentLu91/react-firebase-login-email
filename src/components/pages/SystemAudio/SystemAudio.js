@@ -1,7 +1,7 @@
 import * as React from "react";
 import RecordRTC, { StereoAudioRecorder, MediaStreamRecorder } from "recordrtc";
 
-const Transcribe = () => {
+const SystemAudio = () => {
   const [transcript, setTranscript] = React.useState("");
   const [isTranscribing, setIsTranscribing] = React.useState(false);
   //let isRecording = false;
@@ -84,41 +84,71 @@ const Transcribe = () => {
       // https://stackoverflow.com/questions/47180904/websocket-even-after-firing-onopen-event-still-in-connecting-state
       if (e.target.readyState !== WebSocket.OPEN) return;
       navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then((stream) => {
-          recorder = new RecordRTC(stream, {
-            type: "audio",
-            mimeType: "audio/webm;codecs=pcm", // endpoint requires 16bit PCM audio
-            recorderType: StereoAudioRecorder,
-            timeSlice: 250, // set 250 ms intervals of data that sends to AAI
-            desiredSampRate: 16000,
-            numberOfAudioChannels: 1, // real-time requires only one channel
-            bufferSize: 4096,
-            audioBitsPerSecond: 128000,
-            ondataavailable: (blob) => {
-              const reader = new FileReader();
-              reader.onload = () => {
-                const base64data = reader.result;
+        .enumerateDevices()
+        .then((devices) => {
+          //...
 
-                // audio data must be sent as a base64 encoded string
-                //if (window.socket) {
-                //window.socket.send(
+          //We filter the device which we are willing to get
+          let audDevices = devices.filter((device) => {
+            return (
+              device.kind === "audiooutput" &&
+              //device.label === "Soundflower (2ch)" &&
+              device.deviceId !== "default"
+            );
+          })[0];
 
-                e.target.send(
-                  JSON.stringify({
-                    audio_data: base64data.split("base64,")[1],
-                  })
-                );
-                //}
-              };
-              reader.readAsDataURL(blob);
+          //We get the user media corresponding to the audio device we are willing to get
+          navigator.mediaDevices.getUserMedia({
+            audio: {
+              deviceId: { exact: audDevices.deviceId },
             },
           });
+        }) //The next step is to get audio stream from the sunflower virtual device,
+        //then mix it with the video stream we are already getting.
+        .then((stream) => {
+          navigator.mediaDevices
+            .getUserMedia({
+              audio: false,
+              video: {
+                mandatory: {
+                  chromeMediaSource: "screen",
+                },
+              },
+            })
+            .then((stream) => {
+              recorder = new RecordRTC(stream, {
+                type: "audio",
+                mimeType: "audio/webm;codecs=pcm", // endpoint requires 16bit PCM audio
+                recorderType: StereoAudioRecorder,
+                timeSlice: 250, // set 250 ms intervals of data that sends to AAI
+                desiredSampRate: 16000,
+                numberOfAudioChannels: 1, // real-time requires only one channel
+                bufferSize: 4096,
+                audioBitsPerSecond: 128000,
+                ondataavailable: (blob) => {
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    const base64data = reader.result;
 
-          recorder.startRecording();
-          setIsTranscribing(true);
-        })
-        .catch((err) => console.error(err));
+                    // audio data must be sent as a base64 encoded string
+                    //if (window.socket) {
+                    //window.socket.send(
+
+                    e.target.send(
+                      JSON.stringify({
+                        audio_data: base64data.split("base64,")[1],
+                      })
+                    );
+                    //}
+                  };
+                  reader.readAsDataURL(blob);
+                },
+              });
+
+              recorder.startRecording();
+              setIsTranscribing(true);
+            });
+        });
     };
   };
 
@@ -148,4 +178,4 @@ const Transcribe = () => {
   );
 };
 
-export default Transcribe;
+export default SystemAudio;
