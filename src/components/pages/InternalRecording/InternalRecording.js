@@ -27,8 +27,10 @@ import {
 import { auth } from "../../../firebase";
 import { setCurrentUser } from "../../../redux/user/actions";
 import RecordRTC, { StereoAudioRecorder, MediaStreamRecorder } from "recordrtc";
+import { useNavigate } from "react-router-dom";
 
 const InternalRecording = () => {
+  const navigate = useNavigate();
   const { status, startRecording, stopRecording, mediaBlobUrl } =
     useReactMediaRecorder({ audio: true }); // could also put video and screen props as true!
 
@@ -287,7 +289,7 @@ const InternalRecording = () => {
     alert("entered...");
 
     // We can go to library tab
-    //navigation.navigate("Library");
+    navigate("/home");
   }
 
   function renderView() {
