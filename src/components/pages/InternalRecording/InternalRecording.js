@@ -1,6 +1,6 @@
 import { useReactMediaRecorder } from "react-media-recorder";
 import * as React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   updateRecordingList,
@@ -24,31 +24,17 @@ import {
   onSnapshot,
   deleteDoc,
 } from "firebase/firestore";
-import withAuth from "../../withAuth";
 import { auth } from "../../../firebase";
 import { setCurrentUser } from "../../../redux/user/actions";
 import RecordRTC, { StereoAudioRecorder, MediaStreamRecorder } from "recordrtc";
-import { io } from "socket.io-client";
 
 const InternalRecording = () => {
-  const {
-    status,
-    startRecording,
-    stopRecording,
-    mediaBlobUrl,
-    previewAudioStream,
-  } = useReactMediaRecorder({ audio: true }); // could also put video and screen props as true!
-  // the useReactMediaRecorder call above allows me to record both screen audio and microphone.
-  // for example, it could record audio from a YouTube video I am watching while I am speaking on the microphone.
-  // so this is a capable audio recorder in which it records not just the microphone, but also sounds inside the computer
-  // see this for reference:
-  // https://github.com/VincentLu91/react-firebase-login-email/blob/ffe985d000cab213c74eb24fc299a4743544a406/src/components/pages/InternalRecording/InternalRecording.js
-  console.log("previewAudioStream is: ", previewAudioStream);
-  const socketRef = useRef();
+  const { status, startRecording, stopRecording, mediaBlobUrl } =
+    useReactMediaRecorder({ audio: true }); // could also put video and screen props as true!
 
   const [filename, setFilename] = React.useState("");
-  const [media, setMedia] = React.useState("");
   const [transcript, setTranscript] = React.useState("");
+  const [isTranscribing, setIsTranscribing] = React.useState(false);
   const dispatch = useDispatch();
   const recordingList = useSelector(
     (state) => state.recordingReducer.recordingList
@@ -110,17 +96,6 @@ const InternalRecording = () => {
         xhr.send(null);
       });
       if (blob != null) {
-        // storage
-        //   .child(fileName)
-        //   .put(blob, {
-        //     contentType: `audio/${fileType}`,
-        //   })
-        //   .then(() => {
-        //     console.log("Sent!");
-        //     db.collection("recordings").add(audioData);
-        //   })
-        //   .catch((e) => console.log("error:", e));
-        // 'file' comes from the Blob or File API
         const storageRef = ref(storage, fileName);
         uploadBytes(storageRef, blob).then((snapshot) => {
           const docRef = addDoc(
@@ -139,81 +114,8 @@ const InternalRecording = () => {
     }
   };
 
-  const startRecordingAudio = async () => {
-    await startRecording();
-    // call transcription function later
-    //startTranscribing();
-    // dispatch(setIsRecording(true));
-  };
-
-  useEffect(() => {
-    const createSocket = async () => {
-      const response = await fetch("http://localhost:5001/");
-      const data = await response.json();
-      console.log("DATOKEN", data);
-      if (data.error) {
-        alert(data.error);
-      }
-
-      const { token } = data;
-
-      // establish wss with AssemblyAI (AAI) at 16000 sample rate
-      socketRef.current = io(
-        `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${token}`
-        //"http://localhost:5000/"
-      );
-
-      const texts = {};
-
-      socketRef.current.on("disconnect", () => {
-        //console.log("error event useEffect is: ", event);
-        //console.log("e in useEffect is: ", e);
-        console.log("Got disconnected, need to try connecting again");
-        socketRef.current.connect();
-      });
-      socketRef.current.on("receiving audio data", (message) => {
-        //alert("Entering onmessage");
-        console.log("onsocket message is: ", message);
-        let msg = "";
-        //const res = JSON.parse(message.data);
-        const res = message.data;
-        texts[res.audio_start] = res.text;
-        const keys = Object.keys(texts);
-        keys.sort((a, b) => a - b);
-        for (const key of keys) {
-          if (texts[key]) {
-            msg += ` ${texts[key]}`;
-          }
-        }
-        console.log("Leaving onmessage. msg is: ", msg);
-        setTranscript(msg);
-      });
-
-      /*socketRef.current.onerror = (event) => {
-        console.error("error event is: ", event);
-        socketRef.current.close();
-      };*/
-      socketRef.current.on("connect", () => {
-        console.log("socket is opened");
-        console.log(socketRef.current.id);
-      });
-    };
-    createSocket();
-  }, []);
-
-  useEffect(() => {
-    if (status === "recording" && previewAudioStream !== null) {
-      startTranscribing();
-    }
-    //console.log("transcribing status is: ", status);
-    //console.log("transcribing previewAudioStream is: ", previewAudioStream);
-  }, [status, previewAudioStream]);
-
   const startTranscribing = async () => {
-    //console.log("transcribing status is: ", status);
-    //console.log("transcribing previewAudioStream is: ", previewAudioStream);
-    //return;
-    /*const response = await fetch("http://localhost:5000/");
+    const response = await fetch("http://localhost:5001/");
     const data = await response.json();
     console.log("DATOKEN", data);
     if (data.error) {
@@ -223,15 +125,15 @@ const InternalRecording = () => {
     const { token } = data;
 
     // establish wss with AssemblyAI (AAI) at 16000 sample rate
-    socketRef.current = await new WebSocket(
+    window.socket = await new WebSocket(
       `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${token}`
     );
 
     // handle incoming messages to display transcription to the DOM
     const texts = {};
-    socketRef.current.onmessage = (message) => {
-      alert("Entering onmessage");
-      alert("onsocket message is: ", message);
+    window.socket.onmessage = (message) => {
+      console.log("Entering onmessage");
+      console.log("onwindow.socket message is: ", message);
       let msg = "";
       const res = JSON.parse(message.data);
       texts[res.audio_start] = res.text;
@@ -242,107 +144,82 @@ const InternalRecording = () => {
           msg += ` ${texts[key]}`;
         }
       }
-      alert("Leaving onmessage. msg is: ", msg);
+      console.log("Leaving onmessage. msg is: ", msg);
       setTranscript(msg);
+      console.log("Opening. window.socket is: ", window.socket);
     };
 
-    socketRef.current.onerror = (event) => {
+    window.socket.onerror = (event) => {
       console.error(event);
-      socketRef.current.close();
-    };*/
+      window.socket.close();
+      setIsTranscribing(false);
+    };
 
-    /*socketRef.current.onclose = (event) => {
+    window.socket.onclose = (event) => {
       console.log(event);
-      socketRef.current = null;
-    };*/
+      window.socket = null;
+      setIsTranscribing(false);
+    };
 
-    //socketRef.current.onopen = () => {
-    //alert("trying to transcribe");
-    // once socket is open, begin recording
-    //messageEl.style.display = "";
-    /*console.log(
-        "mediaDevices is: ",
-        navigator.mediaDevices.getUserMedia({ audio: true })
-      );*/
-    console.log("status is: ", status);
-
-    recorder = RecordRTC(previewAudioStream, {
-      type: "audio",
-      mimeType: "audio/webm;codecs=pcm", // endpoint requires 16bit PCM audio
-      recorderType: StereoAudioRecorder, // or MediaStreamRecorder
-      timeSlice: 250, // set 250 ms intervals of data that sends to AAI
-      //sampleRate: 16000,
-      desiredSampRate: 16000,
-      numberOfAudioChannels: 1, // real-time requires only one channel
-      bufferSize: 4096,
-      //audioBitsPerSecond: 128000,
-      ondataavailable: (blob) => {
-        console.log("trying to read blob: ", blob);
-        const reader = new FileReader();
-        reader.onload = () => {
-          const base64data = reader.result;
-          console.log("socket is: ", socketRef.current);
-          console.log("base64data is: ", base64data);
-          // audio data must be sent as a base64 encoded string
-          if (socketRef.current) {
-            socketRef.current.emit(
-              /*JSON.stringify({
-                audio_data: base64data.split("base64,")[1],
-              })*/
-              "sending audio data",
-              {
-                audio_data: base64data.split("base64,")[1],
-              }
-            );
-          }
-        };
-        reader.readAsDataURL(blob);
-      },
-    });
-
-    recorder.startRecording();
-    /*navigator.mediaDevices
+    window.socket.onopen = (e) => {
+      // solution to reopen websocket instance:
+      // https://stackoverflow.com/questions/47180904/websocket-even-after-firing-onopen-event-still-in-connecting-state
+      if (e.target.readyState !== WebSocket.OPEN) return;
+      navigator.mediaDevices
         .getUserMedia({ audio: true })
         .then((stream) => {
-          alert("entering stream");
-          console.log("Stream is: ", stream);*/
-    /*recorder = new RecordRTC(stream, {
+          recorder = new RecordRTC(stream, {
             type: "audio",
             mimeType: "audio/webm;codecs=pcm", // endpoint requires 16bit PCM audio
-            recorderType: StereoAudioRecorder, // or MediaStreamRecorder
+            recorderType: StereoAudioRecorder,
             timeSlice: 250, // set 250 ms intervals of data that sends to AAI
             desiredSampRate: 16000,
             numberOfAudioChannels: 1, // real-time requires only one channel
             bufferSize: 4096,
             audioBitsPerSecond: 128000,
             ondataavailable: (blob) => {
-              alert("trying to read blob"); // this is not firing
               const reader = new FileReader();
               reader.onload = () => {
                 const base64data = reader.result;
 
                 // audio data must be sent as a base64 encoded string
-                if (socket) {
-                  alert("socket is: ", socket);
-                  socket.send(
-                    JSON.stringify({
-                      audio_data: base64data.split("base64,")[1],
-                    })
-                  );
-                }
+                //if (window.socket) {
+                //window.socket.send(
+
+                e.target.send(
+                  JSON.stringify({
+                    audio_data: base64data.split("base64,")[1],
+                  })
+                );
+                //}
               };
               reader.readAsDataURL(blob);
             },
           });
 
-          recorder.startRecording();*/
-    //})
-    //.catch((err) => console.error("navigator mediaDevice err is: ", err));
-    //};
+          recorder.startRecording();
+          setIsTranscribing(true);
+        })
+        .catch((err) => console.error(err));
+    };
+  };
+
+  const stopTranscribing = async () => {
+    window.socket.close(); // this appears to close the ws instance and a new one could be opened,
+    // but triggers Websocket is in CLOSED state in logs
+    setIsTranscribing(false);
+  };
+
+  const startRecordingAudio = async () => {
+    startRecording();
+    // call transcription function later
+    startTranscribing();
+    // dispatch(setIsRecording(true));
   };
 
   async function stopRecordingAudio() {
     stopRecording();
+    stopTranscribing();
     // call transcription function later
     //dispatch(setRecordURI(mediaBlobUrl));
     dispatch(setIsRecording(false));
@@ -416,18 +293,29 @@ const InternalRecording = () => {
   function renderView() {
     if (status === "recording" || status === "idle") {
       // while recording or not recording yet
-      return (
-        <div>
-          <p>{status}</p>
-          <button onClick={startRecordingAudio}>Start Recording</button>
-          <button onClick={stopRecordingAudio}>Stop Recording</button>
-          {/*<video src={mediaBlobUrl} controls autoPlay loop />*/}
-          <video src={mediaBlobUrl} controls />
-          <br />
-          <p>Any transcripts?</p>
-          <p>{transcript}</p>
-        </div>
-      );
+      if (isTranscribing) {
+        return (
+          <div>
+            <p>{status}</p>
+            <button onClick={stopRecordingAudio}>Stop Recording</button>
+            {/*<video src={mediaBlobUrl} controls autoPlay loop />*/}
+            <video src={mediaBlobUrl} controls />
+            <h1>Transcript below</h1>
+            <p>{transcript}</p>
+          </div>
+        );
+      } else {
+        return (
+          <div>
+            <p>{status}</p>
+            <button onClick={startRecordingAudio}>Start Recording</button>
+            {/*<video src={mediaBlobUrl} controls autoPlay loop />*/}
+            <video src={mediaBlobUrl} controls />
+            <h1>Transcript below</h1>
+            <p>{transcript}</p>
+          </div>
+        );
+      }
     }
     if (status === "stopped") {
       // finished recording
@@ -465,4 +353,4 @@ const InternalRecording = () => {
   );
 };
 
-export default withAuth(InternalRecording);
+export default InternalRecording;
