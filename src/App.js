@@ -16,6 +16,7 @@ import AudioRecording from "./components/pages/AudioRecording/AudioRecording";
 import InternalRecording from "./components/pages/InternalRecording/InternalRecording";
 import Transcribe from "./components/pages/Transcribe/Transcribe";
 import SystemAudio from "./components/pages/SystemAudio/SystemAudio";
+import Library from "./components/pages/Library.js/Library";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -53,6 +54,7 @@ function App() {
             <Route path="/internalrecording" element={<InternalRecording />} />
             <Route path="/transcribe" element={<Transcribe />} />
             <Route path="/systemaudio" element={<SystemAudio />} />
+            <Route path="/library" element={<Library />} />
             <Route path="**" element={<Home />} />
           </Routes>
           {/*</UserProvider>*/}
