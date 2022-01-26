@@ -72,15 +72,44 @@ const Library = () => {
     console.log("Cloud Recording List is: ", cloudRecordingList);
   }, [cloudRecordingList.length]);
 
+  // function to delete a recording:
+  async function deleteRecording(filename, authUser) {
+    console.log("deleting recording");
+    const deleteRef = collection(db, `recordings/${authUser.uid}/files`);
+    let deleteQuery = query(
+      deleteRef,
+      where("user", "==", authUser.uid),
+      where("originalFilename", "==", filename)
+    );
+    const querySnapshot = await getDocs(deleteQuery);
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      //console.log(doc.id, " => ", doc.data());
+      //doc.ref.delete();
+      // delete audio file
+      //storage.child(filename).delete();
+      deleteDoc(ref(storage, filename));
+    });
+  }
+
   return (
     <div>
       <h2>List of recordings and transcriptions</h2>
       <ul>
         {cloudRecordingList.map(function (item) {
-          return <li key={item}>{item.fileName}</li>;
+          return (
+            <div>
+              <li key={item}>{item.fileName}</li>
+              <button
+                onClick={() => deleteRecording(item.fileName, currentUser)}
+              >
+                Delete
+              </button>
+            </div>
+          );
         })}
       </ul>
-      {/*<h3>The number of recordings is: {cloudRecordingList.length}</h3>*/}
+      <h3>The number of recordings is: {cloudRecordingList.length}</h3>
     </div>
   );
 };
