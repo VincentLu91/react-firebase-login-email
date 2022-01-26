@@ -68,19 +68,19 @@ const Library = () => {
     }
   }
 
-  /*React.useEffect(() => {
-    loadRecordings();
-  }, [cloudRecordingList.length]);*/
+  React.useEffect(() => {
+    console.log("Cloud Recording List is: ", cloudRecordingList);
+  }, [cloudRecordingList.length]);
 
   return (
     <div>
       <h2>List of recordings and transcriptions</h2>
       <ul>
-        {["a", "b", "c"].map(function (item) {
-          return <li key={item}>{item}</li>;
+        {cloudRecordingList.map(function (item) {
+          return <li key={item}>{item.fileName}</li>;
         })}
       </ul>
-      <h3>The number of recordings is: {cloudRecordingList.length}</h3>
+      {/*<h3>The number of recordings is: {cloudRecordingList.length}</h3>*/}
     </div>
   );
 };
