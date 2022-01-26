@@ -12,6 +12,7 @@ import {
   onSnapshot,
   deleteDoc,
 } from "firebase/firestore";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { setCurrentUser } from "../../../redux/user/actions";
 
 const Library = () => {
@@ -20,8 +21,9 @@ const Library = () => {
   const [cloudRecordingList, setCloudRecordingList] = React.useState([]);
 
   const downloadAudio = async (fileName) => {
-    const uri = await storage.child(fileName).getDownloadURL();
-    return uri;
+    //const uri = await storage.child(fileName).getDownloadURL();
+    //return uri;
+    getDownloadURL(ref(storage, fileName));
   };
 
   // this is to check for the userID upon page refresh in the event it gets wiped out.
@@ -30,18 +32,19 @@ const Library = () => {
       console.log(authUser); // uid
       if (authUser) {
         dispatch(setCurrentUser(authUser));
+        loadRecordings(authUser);
         //navigate("/home");
       }
     });
 
     return unsubscribe;
-  }, []);
+  }, [cloudRecordingList.length]);
 
-  async function loadRecordings() {
-    const recordingRef = collection(db, `recordings/${currentUser.uid}/files`);
+  async function loadRecordings(authUser) {
+    const recordingRef = collection(db, `recordings/${authUser.uid}/files`);
     const recordingRefQuery = query(
       recordingRef,
-      where("user", "==", currentUser.uid)
+      where("user", "==", authUser.uid)
     );
     const querySnapshot = await getDocs(recordingRefQuery);
     if (querySnapshot) {
@@ -65,9 +68,9 @@ const Library = () => {
     }
   }
 
-  React.useEffect(() => {
+  /*React.useEffect(() => {
     loadRecordings();
-  }, [cloudRecordingList.length]);
+  }, [cloudRecordingList.length]);*/
 
   return (
     <div>
@@ -77,6 +80,7 @@ const Library = () => {
           return <li key={item}>{item}</li>;
         })}
       </ul>
+      <h3>The number of recordings is: {cloudRecordingList.length}</h3>
     </div>
   );
 };
