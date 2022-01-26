@@ -53,6 +53,7 @@ const InternalRecording = () => {
 
   let recorder;
 
+  // this is to check for the userID upon page refresh in the event it gets wiped out.
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       console.log(authUser); // uid

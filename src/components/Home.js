@@ -18,14 +18,12 @@ import AuthComponent from "./layout";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setCurrentUser } from "../redux/user/actions";
 
-const Home = ({ subscription, setSubscription }) => {
+const Home = () => {
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.user.currentUser);
   const [products, setProducts] = useState([]);
-  const dispatch = useDispatch();
-  //const [subscription, setSubscription] = useState(null);
+  const [subscription, setSubscription] = useState(null);
 
   // const { state: userContext, update: updateUserContext } =
   //   useContext(UserContext);
@@ -72,16 +70,11 @@ const Home = ({ subscription, setSubscription }) => {
     });
   }
 
+  // create useEffect to track user's subscriptions...
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((authUser) => {
-      console.log(authUser); // uid
-      if (authUser) {
-        dispatch(setCurrentUser(authUser));
-        //navigate("/home");
-      }
-    });
-
-    return unsubscribe;
+    //console.log("Current user is: ", currentUser);
+    checkAuth(currentUser);
+    //getSubscriptionsInfo();
   }, []);
 
   async function getProductsDisplay() {
@@ -214,8 +207,6 @@ const Home = ({ subscription, setSubscription }) => {
           <button onClick={() => navigate("/internalrecording")}>
             InternalRecording (which works on audio recording too)
           </button>
-          <button onClick={() => navigate("/transcribe")}>Transcribe</button>
-          <button onClick={() => navigate("/systemaudio")}>SystemAudio</button>
         </p>
         {loading && (
           <div>
