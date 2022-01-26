@@ -14,8 +14,11 @@ import {
 } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { setCurrentUser } from "../../../redux/user/actions";
+import { useNavigate } from "react-router-dom";
+import { printTranscription } from "../../../redux/language/actions";
 
 const Library = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.user.currentUser);
   const [cloudRecordingList, setCloudRecordingList] = React.useState([]);
@@ -90,6 +93,12 @@ const Library = () => {
       //storage.child(filename).delete();
       deleteDoc(ref(storage, filename));
     });
+  }
+
+  // will call later
+  async function viewContent(transcription) {
+    dispatch(printTranscription(transcription));
+    navigate("/audioplayer");
   }
 
   return (
