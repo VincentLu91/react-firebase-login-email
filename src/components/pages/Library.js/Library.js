@@ -24,8 +24,6 @@ const Library = () => {
   const [cloudRecordingList, setCloudRecordingList] = React.useState([]);
 
   const downloadAudio = async (fileName) => {
-    //const uri = await storage.child(fileName).getDownloadURL();
-    //return uri;
     getDownloadURL(ref(storage, fileName));
   };
 
@@ -36,7 +34,6 @@ const Library = () => {
       if (authUser) {
         dispatch(setCurrentUser(authUser));
         loadRecordings(authUser);
-        //navigate("/home");
       }
     });
 
@@ -86,12 +83,6 @@ const Library = () => {
     );
     const querySnapshot = await getDocs(deleteQuery);
     querySnapshot.forEach(async (doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      //console.log(doc.id, " => ", doc.data());
-      //doc.ref.delete();
-      // delete audio file
-      //storage.child(filename).delete();
-      //deleteDoc(ref(storage, filename));
       await deleteDoc(doc.ref);
     });
     window.location.reload();
