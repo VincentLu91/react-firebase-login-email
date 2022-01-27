@@ -16,6 +16,7 @@ import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { setCurrentUser } from "../../../redux/user/actions";
 import { useNavigate } from "react-router-dom";
 import { printTranscription } from "../../../redux/language/actions";
+import { onAuthStateChanged } from "firebase/auth";
 
 const Library = () => {
   const navigate = useNavigate();
@@ -29,8 +30,8 @@ const Library = () => {
 
   // this is to check for the userID upon page refresh in the event it gets wiped out.
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((authUser) => {
-      console.log(authUser); // uid
+    const unsubscribe = onAuthStateChanged(auth, (authUser) => {
+      console.log("authUser is: ", authUser); // uid
       if (authUser) {
         dispatch(setCurrentUser(authUser));
         loadRecordings(authUser);
@@ -85,7 +86,7 @@ const Library = () => {
     querySnapshot.forEach(async (doc) => {
       await deleteDoc(doc.ref);
     });
-    window.location.reload(false);
+    //window.location.reload(false);
   }
 
   // will call later
