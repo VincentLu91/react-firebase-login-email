@@ -68,7 +68,9 @@ const InternalRecording = () => {
 
   const uploadAudio = async (audioData) => {
     //const uriParts = recordURI.split(".");
-    const uriParts = mediaBlobUrl.split(".");
+    let uriParts = mediaBlobUrl.split(".").toString().replace("//", "");
+    //uriParts = uriParts.toString().replace("//", "");
+    //const uriParts = mediaBlobUrl.split(".").replace(/\//g, "");
     const fileType = uriParts[uriParts.length - 1];
     const fileName =
       //audioData.filename + "_" + currentUser + `${Date.now()}.${fileType}`;
