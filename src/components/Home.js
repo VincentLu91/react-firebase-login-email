@@ -161,7 +161,7 @@ const Home = () => {
     //await getSubscriptionsInfo();
     await checkAuth(currentUser);
     setLoading(false);
-    window.location.reload(); // workaround for screen refresh
+    window.location.reload(true); // workaround for screen refresh
   };
 
   const cancelPlan = async (currentSubscriptionId) => {
@@ -174,7 +174,7 @@ const Home = () => {
     //await getSubscriptionsInfo();
     await checkAuth(currentUser);
     setLoading(false);
-    window.location.reload();
+    window.location.reload(true);
   };
 
   console.log(
