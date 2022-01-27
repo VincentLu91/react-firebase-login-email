@@ -28,6 +28,7 @@ import { auth } from "../../../firebase";
 import { setCurrentUser } from "../../../redux/user/actions";
 import RecordRTC, { StereoAudioRecorder, MediaStreamRecorder } from "recordrtc";
 import { useNavigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
 
 const InternalRecording = () => {
   const navigate = useNavigate();
@@ -55,7 +56,7 @@ const InternalRecording = () => {
 
   // this is to check for the userID upon page refresh in the event it gets wiped out.
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (authUser) => {
       console.log(authUser); // uid
       if (authUser) {
         dispatch(setCurrentUser(authUser));
