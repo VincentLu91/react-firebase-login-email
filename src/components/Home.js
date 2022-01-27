@@ -174,6 +174,7 @@ const Home = () => {
     //await getSubscriptionsInfo();
     await checkAuth(currentUser);
     setLoading(false);
+    window.location.reload();
   };
 
   console.log(

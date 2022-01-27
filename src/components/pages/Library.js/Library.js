@@ -94,6 +94,7 @@ const Library = () => {
       //deleteDoc(ref(storage, filename));
       await deleteDoc(doc.ref);
     });
+    window.location.reload();
   }
 
   // will call later
