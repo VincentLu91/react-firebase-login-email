@@ -77,7 +77,7 @@ const Library = () => {
 
   // function to delete a recording:
   async function deleteRecording(filename, authUser) {
-    console.log("deleting recording");
+    console.log("deleting recording: ", filename);
     const deleteRef = collection(db, `recordings/${authUser.uid}/files`);
     let deleteQuery = query(
       deleteRef,
@@ -85,13 +85,14 @@ const Library = () => {
       where("originalFilename", "==", filename)
     );
     const querySnapshot = await getDocs(deleteQuery);
-    querySnapshot.forEach((doc) => {
+    querySnapshot.forEach(async (doc) => {
       // doc.data() is never undefined for query doc snapshots
       //console.log(doc.id, " => ", doc.data());
       //doc.ref.delete();
       // delete audio file
       //storage.child(filename).delete();
-      deleteDoc(ref(storage, filename));
+      //deleteDoc(ref(storage, filename));
+      await deleteDoc(doc.ref);
     });
   }
 
