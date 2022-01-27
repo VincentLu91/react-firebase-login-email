@@ -17,7 +17,6 @@ import { setCurrentUser } from "../../../redux/user/actions";
 import { useNavigate } from "react-router-dom";
 import { printTranscription } from "../../../redux/language/actions";
 import { onAuthStateChanged } from "firebase/auth";
-import { Link } from "react-router-dom";
 
 const Library = () => {
   const navigate = useNavigate();
@@ -103,9 +102,10 @@ const Library = () => {
         {cloudRecordingList.map(function (item) {
           return (
             <div>
-              <li key={item}>
-                <Link to="/audioplayer">{item.fileName}</Link>
-              </li>
+              <li key={item}>{item.fileName}</li>
+              <button onClick={() => viewContent(item.transcript)}>
+                View Recording And Transcription
+              </button>
               <button
                 onClick={() => deleteRecording(item.fileName, currentUser)}
               >
