@@ -1,8 +1,11 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import song from "./src_Suncrown - Legend of the Forgotten Centuries.mp3";
 import Slider from "./components/slider/Slider";
 import ControlPanel from "./components/controls/ControlPanel";
 import { useDispatch, useSelector } from "react-redux";
+import db, { storage, auth } from "../../../firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { setCurrentUser } from "../../../redux/user/actions";
 
 function AudioPlayer() {
   const dispatch = useDispatch();
@@ -13,6 +16,18 @@ function AudioPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (authUser) => {
+      console.log("authUser is: ", authUser); // uid
+      if (authUser) {
+        dispatch(setCurrentUser(authUser));
+        //loadRecordings(authUser);
+      }
+    });
+
+    return unsubscribe;
+  }, [transcriptionText]);
 
   const audioRef = useRef();
 
