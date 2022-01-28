@@ -92,6 +92,7 @@ const Library = () => {
   // will call later
   async function viewContent(transcription) {
     dispatch(printTranscription(transcription));
+    console.log("Transcription from Library is: ", transcription);
     navigate("/audioplayer");
   }
 

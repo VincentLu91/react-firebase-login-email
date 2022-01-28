@@ -2,8 +2,13 @@ import { useState, useRef } from "react";
 import song from "./src_Suncrown - Legend of the Forgotten Centuries.mp3";
 import Slider from "./components/slider/Slider";
 import ControlPanel from "./components/controls/ControlPanel";
+import { useDispatch, useSelector } from "react-redux";
 
 function AudioPlayer() {
+  const dispatch = useDispatch();
+  const transcriptionText = useSelector(
+    (state) => state.languageReducer.transcriptionText
+  );
   const [percentage, setPercentage] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -47,6 +52,7 @@ function AudioPlayer() {
     <div className="audioplayer-body">
       <div className="audioplayer-container">
         <h1>Audio Player</h1>
+        <h1>Lol: {transcriptionText}</h1>
         <Slider percentage={percentage} onChange={onChange} />
         <audio
           ref={audioRef}
