@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import { setCurrentUser } from "../../../redux/user/actions";
+import { setSound } from "../../../redux/recording/actions";
 import { useNavigate } from "react-router-dom";
 import { printTranscription } from "../../../redux/language/actions";
 import { onAuthStateChanged } from "firebase/auth";
@@ -90,9 +91,10 @@ const Library = () => {
   }
 
   // will call later
-  async function viewContent(transcription) {
-    dispatch(printTranscription(transcription));
-    console.log("Transcription from Library is: ", transcription);
+  async function viewContent(item) {
+    //dispatch(printTranscription(transcription));
+    //console.log("Transcription from Library is: ", transcription);
+    dispatch(setSound(item));
     navigate("/audioplayer");
   }
 
@@ -104,7 +106,7 @@ const Library = () => {
           return (
             <div>
               <li key={item}>{item.fileName}</li>
-              <button onClick={() => viewContent(item.transcript)}>
+              <button onClick={() => viewContent(item)}>
                 View Recording And Transcription
               </button>
               <button

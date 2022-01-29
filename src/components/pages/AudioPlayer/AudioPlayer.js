@@ -12,6 +12,7 @@ function AudioPlayer() {
   const transcriptionText = useSelector(
     (state) => state.languageReducer.transcriptionText
   );
+  const sound = useSelector((state) => state.recordingReducer.sound);
   const [percentage, setPercentage] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -27,7 +28,7 @@ function AudioPlayer() {
     });
 
     return unsubscribe;
-  }, [transcriptionText]);
+  }, [sound]);
 
   const audioRef = useRef();
 
@@ -67,7 +68,7 @@ function AudioPlayer() {
     <div className="audioplayer-body">
       <div className="audioplayer-container">
         <h1>Audio Player</h1>
-        <h1>Lol: {transcriptionText}</h1>
+        <h1>Lol: {sound.transcript}</h1>
         <Slider percentage={percentage} onChange={onChange} />
         <audio
           ref={audioRef}
