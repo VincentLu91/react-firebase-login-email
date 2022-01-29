@@ -6,24 +6,62 @@ import { useDispatch, useSelector } from "react-redux";
 import db, { storage, auth } from "../../../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { setCurrentUser } from "../../../redux/user/actions";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
 function AudioPlayer() {
   const dispatch = useDispatch();
   const transcriptionText = useSelector(
     (state) => state.languageReducer.transcriptionText
   );
+  const currentUser = useSelector((state) => state.user.currentUser);
   const sound = useSelector((state) => state.recordingReducer.sound);
   const [percentage, setPercentage] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [audioURL, setAudioURL] = useState(null);
+
+  async function loadRecording(authUser, sound) {
+    /*const pathReference = ref(
+      storage,
+      `recordings/${authUser.uid}/files/${sound.fileName}`
+    );*/
+    const pathReference = ref(storage, sound.originalFilename);
+    getDownloadURL(pathReference)
+      .then((url) => {
+        // Insert url into an <img> tag to "download"
+        console.log("Audio downloaded: ", url);
+        setAudioURL(url);
+      })
+      .catch((error) => {
+        // A full list of error codes is available at
+        // https://firebase.google.com/docs/storage/web/handle-errors
+        switch (error.code) {
+          case "storage/object-not-found":
+            // File doesn't exist
+            break;
+          case "storage/unauthorized":
+            // User doesn't have permission to access the object
+            break;
+          case "storage/canceled":
+            // User canceled the upload
+            break;
+
+          // ...
+
+          case "storage/unknown":
+            // Unknown error occurred, inspect the server response
+            break;
+        }
+      });
+  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (authUser) => {
       console.log("authUser is: ", authUser); // uid
       if (authUser) {
         dispatch(setCurrentUser(authUser));
-        //loadRecordings(authUser);
+        loadRecording(authUser, sound);
       }
     });
 
@@ -76,7 +114,7 @@ function AudioPlayer() {
           onLoadedData={(e) => {
             setDuration(e.currentTarget.duration.toFixed(2));
           }}
-          src={song}
+          src={audioURL} // this is supposed to be the sound object downloaded. Right now it's the 'song' variable from line 2
         ></audio>
         <ControlPanel
           play={play}
