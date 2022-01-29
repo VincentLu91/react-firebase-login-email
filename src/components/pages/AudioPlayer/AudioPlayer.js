@@ -22,6 +22,7 @@ function AudioPlayer() {
   const [currentTime, setCurrentTime] = useState(0);
   const [audioURL, setAudioURL] = useState(null);
   const [isAudioSelected, setIsAudioSelected] = useState(false);
+  const [durationSeconds, setDurationSeconds] = useState(0);
 
   async function loadRecording(authUser, sound) {
     /*const pathReference = ref(
@@ -61,7 +62,7 @@ function AudioPlayer() {
   async function urlToDuration(audioURL) {
     const durationSeconds = await getBlobDuration(audioURL);
     console.log("durationSeconds is: ", durationSeconds);
-    return durationSeconds;
+    setDurationSeconds(durationSeconds);
   }
 
   useEffect(() => {
@@ -137,7 +138,7 @@ function AudioPlayer() {
             <ControlPanel
               play={play}
               isPlaying={isPlaying}
-              duration={duration}
+              duration={durationSeconds} // this is the duration of the audio file in seconds
               currentTime={currentTime}
             />
           </>
