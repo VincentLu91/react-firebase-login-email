@@ -7,6 +7,7 @@ import db, { storage, auth } from "../../../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { setCurrentUser } from "../../../redux/user/actions";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import getBlobDuration from "get-blob-duration";
 
 function AudioPlayer() {
   const dispatch = useDispatch();
@@ -55,6 +56,12 @@ function AudioPlayer() {
             break;
         }
       });
+  }
+
+  async function urlToDuration(audioURL) {
+    const durationSeconds = await getBlobDuration(audioURL);
+    console.log("durationSeconds is: ", durationSeconds);
+    return durationSeconds;
   }
 
   useEffect(() => {
@@ -106,6 +113,7 @@ function AudioPlayer() {
 
     setPercentage(+percent);
     setCurrentTime(time.toFixed(2));
+    console.log("currentTime is: ", time);
   };
 
   return (
@@ -120,7 +128,8 @@ function AudioPlayer() {
               ref={audioRef}
               onTimeUpdate={getCurrDuration}
               onLoadedData={(e) => {
-                setDuration(e.currentTarget.duration.toFixed(2));
+                //setDuration(e.currentTarget.duration.toFixed(2));
+                setDuration(urlToDuration(audioURL));
                 console.log("e.currentTarget is: ", e.currentTarget);
               }}
               src={audioURL}
