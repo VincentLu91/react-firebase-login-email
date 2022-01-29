@@ -20,6 +20,7 @@ function AudioPlayer() {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [audioURL, setAudioURL] = useState(null);
+  const [isAudioSelected, setIsAudioSelected] = useState(false);
 
   async function loadRecording(authUser, sound) {
     /*const pathReference = ref(
@@ -61,7 +62,12 @@ function AudioPlayer() {
       console.log("authUser is: ", authUser); // uid
       if (authUser) {
         dispatch(setCurrentUser(authUser));
-        loadRecording(authUser, sound);
+        if (sound) {
+          loadRecording(authUser, sound);
+          setIsAudioSelected(true);
+        } else {
+          setIsAudioSelected(false);
+        }
       }
     });
 
@@ -106,23 +112,31 @@ function AudioPlayer() {
     <div className="audioplayer-body">
       <div className="audioplayer-container">
         <h1>Audio Player</h1>
-        <h1>Lol: {sound.transcript}</h1>
-        <Slider percentage={percentage} onChange={onChange} />
-        <audio
-          ref={audioRef}
-          onTimeUpdate={getCurrDuration}
-          onLoadedData={(e) => {
-            setDuration(e.currentTarget.duration.toFixed(2));
-            console.log("e.currentTarget is: ", e.currentTarget);
-          }}
-          src={audioURL}
-        ></audio>
-        <ControlPanel
-          play={play}
-          isPlaying={isPlaying}
-          duration={duration}
-          currentTime={currentTime}
-        />
+        {isAudioSelected ? (
+          <>
+            <h1>Lol: {sound.transcript}</h1>
+            <Slider percentage={percentage} onChange={onChange} />
+            <audio
+              ref={audioRef}
+              onTimeUpdate={getCurrDuration}
+              onLoadedData={(e) => {
+                setDuration(e.currentTarget.duration.toFixed(2));
+                console.log("e.currentTarget is: ", e.currentTarget);
+              }}
+              src={audioURL}
+            ></audio>
+            <ControlPanel
+              play={play}
+              isPlaying={isPlaying}
+              duration={duration}
+              currentTime={currentTime}
+            />
+          </>
+        ) : (
+          <>
+            <h1>no audio selected</h1>
+          </>
+        )}
       </div>
     </div>
   );
