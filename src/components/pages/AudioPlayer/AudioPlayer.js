@@ -114,7 +114,7 @@ function AudioPlayer() {
           onLoadedData={(e) => {
             setDuration(e.currentTarget.duration.toFixed(2));
           }}
-          src={audioURL} // this is supposed to be the sound object downloaded. Right now it's the 'song' variable from line 2
+          src={audioURL}
         ></audio>
         <ControlPanel
           play={play}
