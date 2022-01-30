@@ -86,7 +86,9 @@ function AudioPlayer() {
 
   const onChange = (e) => {
     const audio = audioRef.current;
-    audio.currentTime = (audio.duration / 100) * e.target.value;
+    console.log("audioRef.current: ", audioRef.current);
+    audio.currentTime =
+      (audio.duration / 100) * parseFloat(e.target.value).toFixed(2);
     setPercentage(e.target.value);
   };
 
