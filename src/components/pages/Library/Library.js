@@ -87,7 +87,7 @@ const Library = () => {
     querySnapshot.forEach(async (doc) => {
       await deleteDoc(doc.ref);
     });
-    window.location.reload(true);
+    navigate("/home");
   }
 
   // will call later
