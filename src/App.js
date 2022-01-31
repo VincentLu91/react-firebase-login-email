@@ -18,11 +18,12 @@ import InternalRecording from "./components/pages/InternalRecording/InternalReco
 import Transcribe from "./components/pages/Transcribe/Transcribe";
 import SystemAudio from "./components/pages/SystemAudio/SystemAudio";
 import Library from "./components/pages/Library/Library";
+import { onAuthStateChanged } from "firebase/auth";
 
 function App() {
   const [user, setUser] = useState(null);
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((userAuth) => {
+    const unsubscribe = onAuthStateChanged(auth, (userAuth) => {
       const user = {
         uid: userAuth?.uid,
         email: userAuth?.email,

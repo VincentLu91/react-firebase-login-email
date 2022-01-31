@@ -9,6 +9,7 @@ import { UserContext } from "../UserContext";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCurrentUser } from "../redux/user/actions";
+import { onAuthStateChanged } from "firebase/auth";
 
 const Signin = () => {
   const dispatch = useDispatch();
@@ -19,7 +20,7 @@ const Signin = () => {
   const passwordRef = useRef(null);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (authUser) => {
       console.log(authUser); // uid
       if (authUser) {
         dispatch(setCurrentUser(authUser));
