@@ -85,11 +85,10 @@ function AudioPlayer() {
   const audioRef = useRef();
 
   const onChange = (e) => {
-    const audio = audioRef.current;
-    console.log("audioRef.current: ", audioRef.current);
-    audio.currentTime =
-      (audio.duration / 100) * parseFloat(e.target.value).toFixed(2);
-    setPercentage(e.target.value);
+    const sliderVal = e.target.value;
+    audioRef.current.currentTime =
+      (durationSeconds / 100) * parseFloat(sliderVal).toFixed(2);
+    setPercentage(sliderVal);
   };
 
   const play = () => {
@@ -109,7 +108,7 @@ function AudioPlayer() {
 
   const getCurrDuration = (e) => {
     const percent = (
-      (e.currentTarget.currentTime / e.currentTarget.duration) *
+      (e.currentTarget.currentTime / durationSeconds) *
       100
     ).toFixed(2);
     const time = e.currentTarget.currentTime;
