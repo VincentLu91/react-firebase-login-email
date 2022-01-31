@@ -17,7 +17,7 @@ import AudioRecording from "./components/pages/AudioRecording/AudioRecording";
 import InternalRecording from "./components/pages/InternalRecording/InternalRecording";
 import Transcribe from "./components/pages/Transcribe/Transcribe";
 import SystemAudio from "./components/pages/SystemAudio/SystemAudio";
-import Library from "./components/pages/Library.js/Library";
+import Library from "./components/pages/Library/Library";
 
 function App() {
   const [user, setUser] = useState(null);
