@@ -116,11 +116,11 @@ const Home = () => {
     });
   };
 
-  const checkOut = async (priceId, user) => {
-    //alert(priceId);
+  // have no subscription
+  const checkOut = async (priceId) => {
     const docRef = await addDoc(
       //collection(db, `customers/${userContext.user.uid}/checkout_sessions`),
-      collection(db, `customers/${user.uid}/checkout_sessions`),
+      collection(db, `customers/${currentUser.user.uid}/checkout_sessions`),
       {
         price: priceId,
         success_url: window.location.origin,
@@ -133,6 +133,8 @@ const Home = () => {
         alert(error.message);
       }
       if (sessionId) {
+        console.log("sessionId", sessionId);
+
         const stripe = await loadStripe(
           "pk_test_51Jx1cdLBlaDAR7THzsOatgkQk8OYrYzoeZzljbQTVZvd8rcGrlrWxqmDxuLtA2waXPYnOHBIlxjWI4PMjjF8Otxa00naRp98mK"
         );
@@ -143,6 +145,7 @@ const Home = () => {
 
   //Stripe APIs
   const switchPlan = async (currentSubscriptionId, newPriceId) => {
+    console.log("in switch plan");
     await checkAuth(currentUser);
     setLoading(true);
     try {
@@ -220,6 +223,7 @@ const Home = () => {
             const isCurrentPlan = productData?.name
               ?.toLowerCase()
               .includes(subscription?.role);
+            console.log(subscription?.role);
             return (
               <div className="plans" key={productId}>
                 <div>
@@ -230,15 +234,21 @@ const Home = () => {
                   className={isCurrentPlan && "subscribed"}
                   disabled={isCurrentPlan}
                   onClick={() =>
-                    !isCurrentPlan
-                      ? switchPlan(
-                          subscription.subscriptionId,
-                          productData.prices.priceId
-                        )
-                      : checkOut(productData.prices.priceId, currentUser)
+                    subscription?.role
+                      ? isCurrentPlan
+                        ? undefined
+                        : switchPlan(
+                            subscription.subscriptionId,
+                            productData.prices.priceId
+                          )
+                      : checkOut(productData.prices.priceId)
                   }
                 >
-                  {!isCurrentPlan ? "Switch Plan" : "Subscribed"}
+                  {subscription?.role
+                    ? isCurrentPlan
+                      ? "Subscribed"
+                      : "Switch Plan"
+                    : "Buy Plan"}
                 </button>
                 {isCurrentPlan && (
                   <button
