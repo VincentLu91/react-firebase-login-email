@@ -12,6 +12,7 @@ import getBlobDuration from "get-blob-duration";
 import summarize_config from "../../../api/summarize_config";
 import translate_config from "../../../api/translate_config";
 import axios from "axios";
+import Select from "react-select";
 
 function AudioPlayer() {
   const dispatch = useDispatch();
@@ -168,6 +169,12 @@ function AudioPlayer() {
     console.log("currentTime is: ", time);
   };
 
+  const options = [
+    { value: "chocolate", label: "Chocolate" },
+    { value: "strawberry", label: "Strawberry" },
+    { value: "vanilla", label: "Vanilla" },
+  ];
+
   return (
     <div>
       <div className="audioplayer-body">
@@ -202,6 +209,7 @@ function AudioPlayer() {
         </div>
       </div>
       <h1>outside of audio player: select translation and summary</h1>
+      <Select options={options} />
     </div>
   );
 }
