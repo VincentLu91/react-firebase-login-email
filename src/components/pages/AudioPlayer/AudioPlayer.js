@@ -33,8 +33,6 @@ function AudioPlayer() {
   const [translation, setTranslation] = useState(null);
   const [language, setLanguage] = useState(null);
 
-  const languages = ["Chinese", "German"];
-
   const getSummary = async () => {
     try {
       const resp = await axios.post(
@@ -169,11 +167,16 @@ function AudioPlayer() {
     console.log("currentTime is: ", time);
   };
 
-  const options = [
-    { value: "chocolate", label: "Chocolate" },
-    { value: "strawberry", label: "Strawberry" },
-    { value: "vanilla", label: "Vanilla" },
+  const languages = [
+    { value: "chinese", label: "Chinese" },
+    { value: "german", label: "German" },
   ];
+
+  // handle onChange event of the dropdown
+  const handleChange = (e) => {
+    setLanguage(e.label);
+    console.log("Language selected: ", e.value);
+  };
 
   return (
     <div>
@@ -209,7 +212,24 @@ function AudioPlayer() {
         </div>
       </div>
       <h1>outside of audio player: select translation and summary</h1>
-      <Select options={options} />
+      <Select
+        placeholder="Select Option"
+        value={languages.find((obj) => obj.value === language)} // set selected value
+        options={languages} // set list of the data
+        onChange={handleChange} // assign onChange function
+      />
+
+      {language && (
+        <div style={{ marginTop: 20, lineHeight: "25px" }}>
+          <div>
+            <b>Selected Value: </b> {language}
+          </div>
+          <div>
+            <button onClick={() => getTranslation(language)}>Translate</button>
+            <h2>Translation is: {translation}</h2>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
