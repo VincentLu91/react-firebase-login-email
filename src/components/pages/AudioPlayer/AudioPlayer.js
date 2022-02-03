@@ -8,6 +8,10 @@ import { onAuthStateChanged } from "firebase/auth";
 import { setCurrentUser } from "../../../redux/user/actions";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import getBlobDuration from "get-blob-duration";
+// import trainML's config code
+import summarize_config from "../../../api/summarize_config";
+import translate_config from "../../../api/translate_config";
+import axios from "axios";
 
 function AudioPlayer() {
   const dispatch = useDispatch();
@@ -23,6 +27,52 @@ function AudioPlayer() {
   const [audioURL, setAudioURL] = useState(null);
   const [isAudioSelected, setIsAudioSelected] = useState(false);
   const [durationSeconds, setDurationSeconds] = useState(0);
+
+  const [summary, setSummary] = useState(null);
+  const [translation, setTranslation] = useState(null);
+  const [language, setLanguage] = useState(null);
+
+  const languages = ["Chinese", "German"];
+
+  const getSummary = async () => {
+    try {
+      const resp = await axios.post(
+        `${summarize_config.api_address}${summarize_config.route_path}`
+      );
+      const summary_text = resp.data["summary_text"];
+      console.log(summary_text);
+      //console.log(typeof summary_text);
+      setSummary(summary_text);
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.status);
+        console.log(error.response);
+      } else {
+        console.log(error);
+      }
+    }
+  };
+
+  const getTranslation = async (lang) => {
+    try {
+      const resp = await axios.post(
+        `${translate_config.api_address}${translate_config.route_path}`,
+        {
+          lang,
+        }
+      );
+      const translated_text = resp.data["translated_text"];
+      //console.log("Translated text is: ", translated_text);
+      setTranslation(translated_text);
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.status);
+        console.log(error.response);
+      } else {
+        console.log(error);
+      }
+    }
+  };
 
   async function loadRecording(authUser, sound) {
     /*const pathReference = ref(
@@ -119,36 +169,39 @@ function AudioPlayer() {
   };
 
   return (
-    <div className="audioplayer-body">
-      <div className="audioplayer-container">
-        <h1>Audio Player</h1>
-        {isAudioSelected ? (
-          <>
-            <h1>Lol: {sound.transcript}</h1>
-            <Slider percentage={percentage} onChange={onChange} />
-            <audio
-              ref={audioRef}
-              onTimeUpdate={getCurrDuration}
-              onLoadedData={(e) => {
-                //setDuration(e.currentTarget.duration.toFixed(2));
-                setDuration(urlToDuration(audioURL));
-                console.log("e.currentTarget is: ", e.currentTarget);
-              }}
-              src={audioURL}
-            ></audio>
-            <ControlPanel
-              play={play}
-              isPlaying={isPlaying}
-              duration={durationSeconds} // this is the duration of the audio file in seconds
-              currentTime={currentTime}
-            />
-          </>
-        ) : (
-          <>
-            <h1>no audio selected</h1>
-          </>
-        )}
+    <div>
+      <div className="audioplayer-body">
+        <div className="audioplayer-container">
+          <h1>Audio Player</h1>
+          {isAudioSelected ? (
+            <>
+              <h1>Lol: {sound.transcript}</h1>
+              <Slider percentage={percentage} onChange={onChange} />
+              <audio
+                ref={audioRef}
+                onTimeUpdate={getCurrDuration}
+                onLoadedData={(e) => {
+                  //setDuration(e.currentTarget.duration.toFixed(2));
+                  setDuration(urlToDuration(audioURL));
+                  console.log("e.currentTarget is: ", e.currentTarget);
+                }}
+                src={audioURL}
+              ></audio>
+              <ControlPanel
+                play={play}
+                isPlaying={isPlaying}
+                duration={durationSeconds} // this is the duration of the audio file in seconds
+                currentTime={currentTime}
+              />
+            </>
+          ) : (
+            <>
+              <h1>no audio selected</h1>
+            </>
+          )}
+        </div>
       </div>
+      <h1>outside of audio player: select translation and summary</h1>
     </div>
   );
 }
