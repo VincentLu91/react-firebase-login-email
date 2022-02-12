@@ -1,4 +1,3 @@
-import { inMemoryPersistence } from "firebase/auth";
 import { UserTypes } from "./types";
 
 // initial state
@@ -7,7 +6,7 @@ const initialState = {
 };
 
 // reducer
-export default (state = initialState, action) => {
+const userReducer = (state = initialState, action) => {
   console.log("Action: ", action);
   switch (action.type) {
     case UserTypes.SET_CURRENT_USER:
@@ -22,3 +21,5 @@ export default (state = initialState, action) => {
       return state;
   }
 };
+
+export default userReducer;

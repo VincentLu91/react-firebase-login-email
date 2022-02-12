@@ -7,12 +7,9 @@ import {
   query,
   where,
   getDocs,
-  addDoc,
-  doc,
-  onSnapshot,
   deleteDoc,
 } from "firebase/firestore";
-import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import { ref, getDownloadURL } from "firebase/storage";
 import { setCurrentUser } from "../../../redux/user/actions";
 import { setSound } from "../../../redux/recording/actions";
 import { useNavigate } from "react-router-dom";

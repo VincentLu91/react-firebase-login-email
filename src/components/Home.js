@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import db, { auth } from "../firebase";
 import { signOut } from "firebase/auth";
 import {
@@ -8,16 +8,14 @@ import {
   getDocs,
   addDoc,
   onSnapshot,
-  deleteDoc,
 } from "firebase/firestore";
 import "./Home.css";
-import { UserContext } from "../UserContext";
 import { loadStripe } from "@stripe/stripe-js";
 import axios from "axios";
 import AuthComponent from "./layout";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -25,22 +23,15 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [subscription, setSubscription] = useState(null);
 
-  // const { state: userContext, update: updateUserContext } =
-  //   useContext(UserContext);
   const [loading, setLoading] = useState(false);
-  //console.log(userContext);
   async function getSubscriptionsInfo(user) {
-    //if (!userContext.user) return;
     const subscriptionsRef = collection(
       db,
-      //`customers/${userContext.user.uid}/subscriptions`
-      `customers/${user.uid}/subscriptions` // why does this not work? update: it works, I had to call this fn in checkAuth()
-      //`customers/CvKhT7Q8Ubeo4ImF3qToeJZBEJ22/subscriptions` // why does this work? because it identifies the ID upon useEffect
+      `customers/${user.uid}/subscriptions`
     );
     const q = query(subscriptionsRef);
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((subscription) => {
-      console.log("subscription: ", subscription.id, subscription.data());
       setSubscription({
         role: subscription.data().role,
         subscriptionId: subscription.id,
@@ -55,16 +46,9 @@ const Home = () => {
       if (user) {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/firebase.User
-        const uid = user.uid;
-        console.log("The user is authenticated with the uid: ", uid);
         getSubscriptionsInfo(user);
-        // ...
       } else {
         // User is signed out
-        // ...
-        console.log(
-          "The user is inauthenticated, redirecting back to signin page"
-        );
         navigate("/");
       }
     });
@@ -72,20 +56,16 @@ const Home = () => {
 
   // create useEffect to track user's subscriptions...
   useEffect(() => {
-    //console.log("Current user is: ", currentUser);
     checkAuth(currentUser);
-    //getSubscriptionsInfo();
   }, []);
 
   async function getProductsDisplay() {
     const productsRef = collection(db, "products");
     const q = query(productsRef, where("active", "==", true));
     const querySnapshot = await getDocs(q);
-    console.log(querySnapshot);
     const products = {};
     querySnapshot.forEach(async (productDoc) => {
       products[productDoc.id] = productDoc.data();
-      //const priceSnapshotList = query(collectionGroup(db, 'prices'));
       const priceSnapshotList = query(
         collection(db, `products/${productDoc.id}/prices`)
       );
@@ -97,29 +77,15 @@ const Home = () => {
         };
       });
     });
-    console.log("products: ", products);
-    console.log("Object entries", Object.entries(products));
     setProducts(products);
   }
   useEffect(() => {
     getProductsDisplay();
   }, []);
 
-  const clearSubscriptions = async (user) => {
-    const docsToDelete = query(
-      //collection(db, `customers/${userContext.user.uid}/subscriptions`)
-      collection(db, `customers/${user.uid}/subscriptions`)
-    );
-    const deleteQuerySnapshot = await getDocs(docsToDelete);
-    deleteQuerySnapshot.forEach(async (docSnapshot) => {
-      await deleteDoc(docSnapshot.ref);
-    });
-  };
-
   // have no subscription
   const checkOut = async (priceId) => {
     const docRef = await addDoc(
-      //collection(db, `customers/${userContext.user.uid}/checkout_sessions`),
       collection(db, `customers/${currentUser.user.uid}/checkout_sessions`),
       {
         price: priceId,
@@ -133,8 +99,6 @@ const Home = () => {
         alert(error.message);
       }
       if (sessionId) {
-        console.log("sessionId", sessionId);
-
         const stripe = await loadStripe(
           "pk_test_51Jx1cdLBlaDAR7THzsOatgkQk8OYrYzoeZzljbQTVZvd8rcGrlrWxqmDxuLtA2waXPYnOHBIlxjWI4PMjjF8Otxa00naRp98mK"
         );
@@ -145,11 +109,10 @@ const Home = () => {
 
   //Stripe APIs
   const switchPlan = async (currentSubscriptionId, newPriceId) => {
-    console.log("in switch plan");
     await checkAuth(currentUser);
     setLoading(true);
     try {
-      const { data } = await axios.post(
+      await axios.post(
         //"https://us-central1-audio-example-expo.cloudfunctions.net/stripeSwitchPlans", // this is to be replaced by ngrok, otherwise use localhost link below
         "http://localhost:8080/stripe/switch-plans",
         {
@@ -161,7 +124,6 @@ const Home = () => {
       alert("Failed");
     }
     setSubscription(null);
-    //await getSubscriptionsInfo();
     await checkAuth(currentUser);
     setLoading(false);
     window.location.reload(true); // workaround for screen refresh
@@ -174,25 +136,17 @@ const Home = () => {
       stripeSubscriptionId: currentSubscriptionId,
     });
     setSubscription(null);
-    //await getSubscriptionsInfo();
     await checkAuth(currentUser);
     setLoading(false);
     window.location.reload(true);
   };
 
-  console.log(
-    subscription ? subscription.subscriptionId : "No subscription data"
-  );
-  console.log(products);
   return (
     <AuthComponent>
       <div>
         <h1>Welcome home</h1>
         <p>
-          <button
-            className="logout"
-            onClick={() => /*auth.signOut()*/ signOut(auth)}
-          >
+          <button className="logout" onClick={() => signOut(auth)}>
             Sign out
           </button>
           <button onClick={() => navigate("/blog1")}>Go to Blog1</button>
@@ -215,7 +169,7 @@ const Home = () => {
         </p>
         {loading && (
           <div>
-            <img src="/assets/img/loader.svg"></img>
+            <img src="/assets/img/loader.svg" alt="loader"></img>
           </div>
         )}
         <div className="plans-container">
@@ -223,15 +177,15 @@ const Home = () => {
             const isCurrentPlan = productData?.name
               ?.toLowerCase()
               .includes(subscription?.role);
-            console.log(subscription?.role);
             return (
               <div className="plans" key={productId}>
                 <div>
                   {productData.name} - {productData.description}
                 </div>
-                {/*<button disabled={isCurrentPlan} onClick={() => checkOut("price_1K1c9ULBlaDAR7THFHK0A5pi")}>*/}
                 <button
-                  className={isCurrentPlan && "subscribed"}
+                  className={
+                    isCurrentPlan && "subscribed" ? "subscribed" : null
+                  }
                   disabled={isCurrentPlan}
                   onClick={() =>
                     subscription?.role
@@ -257,7 +211,6 @@ const Home = () => {
                     Cancel
                   </button>
                 )}
-                {console.log("ProductData Price: ", productData.prices)}
               </div>
             );
           })}

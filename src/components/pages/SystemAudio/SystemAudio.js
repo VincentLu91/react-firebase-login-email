@@ -1,5 +1,5 @@
 import * as React from "react";
-import RecordRTC, { StereoAudioRecorder, MediaStreamRecorder } from "recordrtc";
+import RecordRTC, { StereoAudioRecorder } from "recordrtc";
 
 const SystemAudio = () => {
   const [transcript, setTranscript] = React.useState("");

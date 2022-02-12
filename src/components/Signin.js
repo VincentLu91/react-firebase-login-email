@@ -1,11 +1,10 @@
-import React, { useRef, useContext, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import { auth } from "../firebase";
 import "./Signin.css";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { UserContext } from "../UserContext";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCurrentUser } from "../redux/user/actions";
@@ -15,8 +14,7 @@ const Signin = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const emailRef = useRef(null);
-  //const { state: user, update: updateUser } = useContext(UserContext);
-  //console.log(user);
+
   const passwordRef = useRef(null);
 
   useEffect(() => {

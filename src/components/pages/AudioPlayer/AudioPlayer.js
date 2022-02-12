@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from "react";
-import song from "./src_Suncrown - Legend of the Forgotten Centuries.mp3";
 import Slider from "./components/slider/Slider";
 import ControlPanel from "./components/controls/ControlPanel";
 import { useDispatch, useSelector } from "react-redux";
-import db, { storage, auth } from "../../../firebase";
+import { storage, auth } from "../../../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { setCurrentUser } from "../../../redux/user/actions";
-import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import { ref, getDownloadURL } from "firebase/storage";
 import getBlobDuration from "get-blob-duration";
 // import trainML's config code
 import summarize_config from "../../../api/summarize_config";
@@ -16,14 +15,9 @@ import Select from "react-select";
 
 function AudioPlayer() {
   const dispatch = useDispatch();
-  const transcriptionText = useSelector(
-    (state) => state.languageReducer.transcriptionText
-  );
-  const currentUser = useSelector((state) => state.user.currentUser);
   const sound = useSelector((state) => state.recordingReducer.sound);
   const [percentage, setPercentage] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [audioURL, setAudioURL] = useState(null);
   const [isAudioSelected, setIsAudioSelected] = useState(false);
@@ -103,6 +97,8 @@ function AudioPlayer() {
 
           case "storage/unknown":
             // Unknown error occurred, inspect the server response
+            break;
+          default:
             break;
         }
       });
@@ -197,7 +193,7 @@ function AudioPlayer() {
                 onTimeUpdate={getCurrDuration}
                 onLoadedData={(e) => {
                   //setDuration(e.currentTarget.duration.toFixed(2));
-                  setDuration(urlToDuration(audioURL));
+                  urlToDuration(audioURL);
                   console.log("e.currentTarget is: ", e.currentTarget);
                 }}
                 src={audioURL}

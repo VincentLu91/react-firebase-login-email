@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getStorage } from "firebase/storage";
 
 var firebaseConfig = {
   apiKey: "AIzaSyDwYv06vmLRodVBWy7Duz6b7tsGOkIPt7o",

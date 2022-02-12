@@ -3,22 +3,12 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import db, { auth } from "../../../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  addDoc,
-  onSnapshot,
-  deleteDoc,
-  orderBy,
-} from "firebase/firestore";
+import { collection, query, getDocs, orderBy } from "firebase/firestore";
 
 const Plan3 = (props) => {
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.user.currentUser);
   const [subscription, setSubscription] = useState(null);
-  const [loading, setLoading] = useState(false);
   //console.log(userContext);
   async function getSubscriptionsInfo(user) {
     //if (!userContext.user) return;

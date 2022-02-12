@@ -4,29 +4,17 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   updateRecordingList,
-  setCurrentSoundRecording,
-  setCurrentPlayingStatus,
-  setRecording,
   setIsRecording,
   setRecordURI,
-  setRecordingDuration,
 } from "../../../redux/recording/actions";
 import moment from "moment";
 import getBlobDuration from "get-blob-duration";
 import db, { storage } from "../../../firebase";
 import { uploadBytes, ref } from "firebase/storage";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  addDoc,
-  onSnapshot,
-  deleteDoc,
-} from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 import { auth } from "../../../firebase";
 import { setCurrentUser } from "../../../redux/user/actions";
-import RecordRTC, { StereoAudioRecorder, MediaStreamRecorder } from "recordrtc";
+import RecordRTC, { StereoAudioRecorder } from "recordrtc";
 import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -104,7 +92,7 @@ const InternalRecording = () => {
       if (blob != null) {
         const storageRef = ref(storage, fileName);
         uploadBytes(storageRef, blob).then((snapshot) => {
-          const docRef = addDoc(
+          addDoc(
             //collection(db, `customers/${userContext.user.uid}/checkout_sessions`),
             //collection(db, `customers/${user.uid}/checkout_sessions`),
             collection(db, `recordings/${currentUser.uid}/files`),
