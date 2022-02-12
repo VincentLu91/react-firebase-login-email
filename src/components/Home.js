@@ -15,10 +15,12 @@ import axios from "axios";
 import AuthComponent from "./layout";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setSound } from "../redux/recording/actions";
 
 const Home = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.user.currentUser);
   const [products, setProducts] = useState([]);
   const [subscription, setSubscription] = useState(null);
@@ -146,7 +148,13 @@ const Home = () => {
       <div>
         <h1>Welcome home</h1>
         <p>
-          <button className="logout" onClick={() => signOut(auth)}>
+          <button
+            className="logout"
+            onClick={() => {
+              signOut(auth);
+              dispatch(setSound(null));
+            }}
+          >
             Sign out
           </button>
           <button onClick={() => navigate("/blog1")}>Go to Blog1</button>
