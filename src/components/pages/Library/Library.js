@@ -101,8 +101,8 @@ const Library = () => {
       <ul>
         {cloudRecordingList.map(function (item) {
           return (
-            <div>
-              <li key={item}>{item.fileName}</li>
+            <div key={item}>
+              <li>{item.fileName}</li>
               <button onClick={() => viewContent(item)}>
                 View Recording And Transcription
               </button>
