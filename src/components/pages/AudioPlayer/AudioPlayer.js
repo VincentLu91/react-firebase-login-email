@@ -192,7 +192,6 @@ function AudioPlayer() {
                 ref={audioRef}
                 onTimeUpdate={getCurrDuration}
                 onLoadedData={(e) => {
-                  //setDuration(e.currentTarget.duration.toFixed(2));
                   urlToDuration(audioURL);
                   console.log("e.currentTarget is: ", e.currentTarget);
                 }}
