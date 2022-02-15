@@ -23,7 +23,8 @@ const Library = () => {
   const [cloudRecordingList, setCloudRecordingList] = React.useState([]);
 
   const downloadAudio = async (fileName) => {
-    getDownloadURL(ref(storage, fileName));
+    const uri = getDownloadURL(ref(storage, fileName));
+    return uri;
   };
 
   // this is to check for the userID upon page refresh in the event it gets wiped out.
