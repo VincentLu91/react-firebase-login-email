@@ -50,7 +50,7 @@ const Library = () => {
       const data = [];
       const audioDownloads = [];
       querySnapshot.forEach(async (documentSnapshot) => {
-        if (documentSnapshot.exists) {
+        if (documentSnapshot.exists()) {
           const originalFilename = documentSnapshot.data().originalFilename;
           data.push(documentSnapshot.data());
           audioDownloads.push(downloadAudio(originalFilename));
