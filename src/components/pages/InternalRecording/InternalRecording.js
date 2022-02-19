@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   updateRecordingList,
-  setIsRecording,
   setRecordURI,
 } from "../../../redux/recording/actions";
 import moment from "moment";
@@ -108,7 +107,10 @@ const InternalRecording = () => {
     }
   };
 
-  const startTranscribing = async () => {
+  const startRecordingAudio = async () => {
+    startRecording();
+    // call transcription function later
+    setIsTranscribing(true);
     const response = await fetch("http://localhost:5001/");
     const data = await response.json();
     console.log("DATOKEN", data);
@@ -118,10 +120,12 @@ const InternalRecording = () => {
 
     const { token } = data;
 
-    // establish wss with AssemblyAI (AAI) at 16000 sample rate
-    window.socket = await new WebSocket(
-      `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${token}`
-    );
+    if (!window.socket) {
+      // establish wss with AssemblyAI (AAI) at 16000 sample rate
+      window.socket = await new WebSocket(
+        `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=16000&token=${token}`
+      );
+    }
 
     // handle incoming messages to display transcription to the DOM
     const texts = {};
@@ -151,7 +155,7 @@ const InternalRecording = () => {
 
     window.socket.onclose = (event) => {
       console.log(event);
-      window.socket = null;
+      //window.socket = null;
       setIsTranscribing(false);
     };
 
@@ -192,44 +196,14 @@ const InternalRecording = () => {
           });
 
           recorder.startRecording();
-          setIsTranscribing(true);
         })
         .catch((err) => console.error(err));
     };
   };
 
-  const stopTranscribing = async () => {
-    window.socket.close(); // this appears to close the ws instance and a new one could be opened,
-    // but triggers Websocket is in CLOSED state in logs
-    setIsTranscribing(false);
-  };
-
-  const startRecordingAudio = async () => {
-    startRecording();
-    // call transcription function later
-    startTranscribing();
-    // dispatch(setIsRecording(true));
-  };
-
   async function stopRecordingAudio() {
     stopRecording();
-    stopTranscribing();
-    // call transcription function later
-    //dispatch(setRecordURI(mediaBlobUrl));
-    dispatch(setIsRecording(false));
-  }
-
-  function extractFilename(filepath) {
-    let arraypath = filepath.split("/");
-    let filename = arraypath[arraypath.length - 1];
-    /*if (global.socket) {
-      global.socket.onclose = (event) => {
-        console.log(event);
-        global.socket = null;
-      };
-      //socket.close(); // not necessary since we have the onclose() event
-    }*/
-    return filename;
+    setIsTranscribing(false);
   }
 
   async function renameRecord() {
