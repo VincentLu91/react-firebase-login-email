@@ -125,7 +125,7 @@ function AudioPlayer() {
     });
 
     return unsubscribe;
-  }, [sound]);
+  }, [dispatch, sound]);
 
   const audioRef = useRef();
 

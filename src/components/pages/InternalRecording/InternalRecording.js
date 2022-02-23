@@ -52,7 +52,7 @@ const InternalRecording = () => {
     });
 
     return unsubscribe;
-  }, []);
+  }, [dispatch]);
 
   const uploadAudio = async (audioData) => {
     //const uriParts = recordURI.split(".");

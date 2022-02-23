@@ -1,7 +1,7 @@
 import { LanguageTypes } from "./types";
 
 // initial state
-const initialState = {
+export const initialState = {
   transcriptionText: null,
 };
 

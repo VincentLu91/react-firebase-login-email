@@ -1,7 +1,7 @@
 import { RecordingAudioTypes } from "./types";
 
 // initial state
-const initialState = {
+export const initialState = {
   recordingList: [],
   sound: null,
   hasSoundPaused: false,

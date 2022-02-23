@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import db, { storage, auth } from "../../../firebase";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -27,20 +27,7 @@ const Library = () => {
     return uri;
   };
 
-  // this is to check for the userID upon page refresh in the event it gets wiped out.
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (authUser) => {
-      console.log("authUser is: ", authUser); // uid
-      if (authUser) {
-        dispatch(setCurrentUser(authUser));
-        loadRecordings(authUser);
-      }
-    });
-
-    return unsubscribe;
-  }, [cloudRecordingList.length]);
-
-  async function loadRecordings(authUser) {
+  const loadRecordings = useCallback(async (authUser) => {
     const recordingRef = collection(db, `recordings/${authUser.uid}/files`);
     const recordingRefQuery = query(
       recordingRef,
@@ -66,11 +53,24 @@ const Library = () => {
         );
       });
     }
-  }
+  }, []);
+
+  // this is to check for the userID upon page refresh in the event it gets wiped out.
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (authUser) => {
+      console.log("authUser is: ", authUser); // uid
+      if (authUser) {
+        dispatch(setCurrentUser(authUser));
+        loadRecordings(authUser);
+      }
+    });
+
+    return unsubscribe;
+  }, [dispatch, loadRecordings]);
 
   React.useEffect(() => {
     console.log("Cloud Recording List is: ", cloudRecordingList);
-  }, [cloudRecordingList.length]);
+  }, [cloudRecordingList]);
 
   // function to delete a recording:
   async function deleteRecording(originalFilename, authUser) {
@@ -101,9 +101,10 @@ const Library = () => {
       <h2>List of recordings and transcriptions</h2>
       <ul>
         {cloudRecordingList.map(function (item) {
+          console.log("item", item);
           return (
-            <div>
-              <li key={item}>{item.fileName}</li>
+            <li key={item.originalFilename}>
+              <div>{item.fileName}</div>
               <button onClick={() => viewContent(item)}>
                 View Recording And Transcription
               </button>
@@ -114,7 +115,7 @@ const Library = () => {
               >
                 Delete
               </button>
-            </div>
+            </li>
           );
         })}
       </ul>

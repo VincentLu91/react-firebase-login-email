@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import db, { auth } from "../firebase";
 import { signOut } from "firebase/auth";
 import {
@@ -16,7 +16,7 @@ import AuthComponent from "./layout";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setSound } from "../redux/recording/actions";
+//import { setSound } from "../redux/recording/actions";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -43,23 +43,26 @@ const Home = () => {
     });
   }
 
-  async function checkAuth(user) {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/firebase.User
-        getSubscriptionsInfo(user);
-      } else {
-        // User is signed out
-        navigate("/");
-      }
-    });
-  }
+  const checkAuth = useCallback(
+    async (user) => {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // User is signed in, see docs for a list of available properties
+          // https://firebase.google.com/docs/reference/js/firebase.User
+          getSubscriptionsInfo(user);
+        } else {
+          // User is signed out
+          navigate("/");
+        }
+      });
+    },
+    [navigate]
+  );
 
   // create useEffect to track user's subscriptions...
   useEffect(() => {
     checkAuth(currentUser);
-  }, []);
+  }, [checkAuth, currentUser]);
 
   async function getProductsDisplay() {
     const productsRef = collection(db, "products");
@@ -152,7 +155,8 @@ const Home = () => {
             className="logout"
             onClick={() => {
               signOut(auth);
-              dispatch(setSound(null));
+              //dispatch(setSound(null));
+              dispatch({ type: "SIGNED_OUT" });
             }}
           >
             Sign out

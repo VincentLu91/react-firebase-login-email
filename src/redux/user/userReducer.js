@@ -1,7 +1,7 @@
 import { UserTypes } from "./types";
 
 // initial state
-const initialState = {
+export const initialState = {
   currentUser: null,
 };
 
