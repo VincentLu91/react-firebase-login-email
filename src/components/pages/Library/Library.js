@@ -73,13 +73,13 @@ const Library = () => {
   }, [cloudRecordingList.length]);
 
   // function to delete a recording:
-  async function deleteRecording(filename, authUser) {
-    console.log("deleting recording: ", filename);
+  async function deleteRecording(originalFilename, authUser) {
+    console.log("deleting recording: ", originalFilename);
     const deleteRef = collection(db, `recordings/${authUser.uid}/files`);
     let deleteQuery = query(
       deleteRef,
       where("user", "==", authUser.uid),
-      where("originalFilename", "==", filename)
+      where("originalFilename", "==", originalFilename)
     );
     const querySnapshot = await getDocs(deleteQuery);
     querySnapshot.forEach(async (doc) => {
@@ -108,7 +108,9 @@ const Library = () => {
                 View Recording And Transcription
               </button>
               <button
-                onClick={() => deleteRecording(item.fileName, currentUser)}
+                onClick={() =>
+                  deleteRecording(item.originalFilename, currentUser)
+                }
               >
                 Delete
               </button>
