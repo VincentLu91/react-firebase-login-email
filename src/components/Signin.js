@@ -27,7 +27,7 @@ const Signin = () => {
     });
 
     return unsubscribe;
-  }, []);
+  }, [dispatch, navigate]);
 
   const signUp = (e) => {
     e.preventDefault();

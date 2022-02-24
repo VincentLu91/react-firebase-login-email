@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import db, { auth } from "../../../firebase";
@@ -31,32 +31,35 @@ const Plan3 = (props) => {
     });
   }
 
-  async function checkAuth(user) {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/firebase.User
-        const uid = user.uid;
-        console.log("The user is authenticated with the uid: ", uid);
-        getSubscriptionsInfo(user);
-        // ...
-      } else {
-        // User is signed out
-        // ...
-        console.log(
-          "The user is inauthenticated, redirecting back to signin page"
-        );
-        navigate("/");
-      }
-    });
-  }
+  const checkAuth = useCallback(
+    async (user) => {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // User is signed in, see docs for a list of available properties
+          // https://firebase.google.com/docs/reference/js/firebase.User
+          const uid = user.uid;
+          console.log("The user is authenticated with the uid: ", uid);
+          getSubscriptionsInfo(user);
+          // ...
+        } else {
+          // User is signed out
+          // ...
+          console.log(
+            "The user is inauthenticated, redirecting back to signin page"
+          );
+          navigate("/");
+        }
+      });
+    },
+    [navigate]
+  );
 
   // create useEffect to track user's subscriptions...
   useEffect(() => {
     //console.log("Current user is: ", currentUser);
     checkAuth(currentUser);
     //getSubscriptionsInfo();
-  }, []);
+  }, [checkAuth, currentUser]);
   console.log(currentUser);
   if (!subscription) return null;
 
