@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import db, { auth } from "../firebase";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { signOut } from "firebase/auth";
 import {
   collection,
@@ -7,6 +8,7 @@ import {
   where,
   getDocs,
   addDoc,
+  deleteDoc,
   onSnapshot,
 } from "firebase/firestore";
 import "./Home.css";
@@ -88,6 +90,20 @@ const Home = () => {
     getProductsDisplay();
   }, []);
 
+  const clearSubscriptions = async () => {
+    const docsToDelete = query(
+      //collection(db, `customers/${userContext.user.uid}/subscriptions`)
+      collection(db, `customers/${currentUser.user.uid}/subscriptions`),
+      where("status", "==", "canceled")
+    );
+    const deleteQuerySnapshot = await getDocs(docsToDelete);
+    console.log("deleteQuerySnapshot: ", deleteQuerySnapshot);
+    for (const docSnapshot of deleteQuerySnapshot.docs) {
+      console.log("deleteQuerySnapshot.docs is: ", deleteQuerySnapshot.docs);
+      await deleteDoc(docSnapshot.ref);
+    }
+  };
+
   // have no subscription
   const checkOut = async (priceId) => {
     const docRef = await addDoc(
@@ -117,21 +133,37 @@ const Home = () => {
     await checkAuth(currentUser);
     setLoading(true);
     try {
-      await axios.post(
-        //"https://us-central1-audio-example-expo.cloudfunctions.net/stripeSwitchPlans", // this is to be replaced by ngrok, otherwise use localhost link below
-        "http://localhost:8080/stripe/switch-plans",
-        {
-          stripeSubscriptionId: currentSubscriptionId,
-          newPriceId: newPriceId,
-        }
-      );
+      const functions = getFunctions();
+      const addMessage = httpsCallable(functions, "stripeSwitchPlans");
+      console.log(currentUser);
+      addMessage({
+        stripeSubscriptionId: currentSubscriptionId,
+        newPriceId: newPriceId,
+        customerId: currentUser.uid,
+      }).then((result) => {
+        // Read result of the Cloud Function.
+        /** @type {any} */
+        const data = result.data;
+        console.log(data);
+      });
+
+      // await axios.post(
+      //   //"https://us-central1-audio-example-expo.cloudfunctions.net/stripeSwitchPlans", // this is to be replaced by ngrok, otherwise use localhost link below
+      //   "http://localhost:8080/stripe/switch-plans",
+      //   {
+      //     stripeSubscriptionId: currentSubscriptionId,
+      //     newPriceId: newPriceId,
+      //   }
+      // );
     } catch (error) {
+      console.log(error);
       alert("Failed");
     }
     setSubscription(null);
     await checkAuth(currentUser);
+    //clearSubscriptions();
     setLoading(false);
-    window.location.reload(true); // workaround for screen refresh
+    //window.location.reload(true); // workaround for screen refresh
   };
 
   const cancelPlan = async (currentSubscriptionId) => {
